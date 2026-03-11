@@ -192,36 +192,82 @@ export class GameState {
 
 
     public winningCard(): Card {
-        // const trumpCardsPlayed = this.trickInProgress.filter(
-        //     ([card, _player]) => trumpSuits.map(
-        //         (trumpSuit) => Suit.suitEquals(card.suit, trumpSuit)
-        //     ).some(Boolean)
-        // );
-        // let winningCard: Card | null = null;
-        // if (trumpCardsPlayed.length > 0) {
-        //     let trumpsHighToLow = [...trumpSuits].reverse();
-        //     for (const trumpSuit of trumpsHighToLow) {
-        //         const thisTrumpSuitCardsPlayed: [Card, Player][] = trumpCardsPlayed.filter(
-        //             ([card, player]) => Suit.suitEquals(card.suit, trumpSuit)
-        //         )
-        //         if (thisTrumpSuitCardsPlayed.length > 0) {
-        //             winningCard = Card.singleHighestCard(thisTrumpSuitCardsPlayed.map(([card, _player]) => card));
-        //             break;
-        //         }
-        //     }
-        // } else {
-        //     const ledCardsPlayed = this.trickInProgress.filter(
-        //         ([card, _player]) => Suit.suitEquals(card.suit, this.currentLedSuit as Suit)
-        //     );
-        //     winningCard = Card.singleHighestCard(ledCardsPlayed.map(([card, _player]) => card))
-        // }
-        // if (winningCard === null) {
-        //     // TODO: error
-        //     throw new Error('severe card winner error');
-        // }
-        // return winningCard;
-        // TODO: placeholder:
-        return this.trickInProgressCards[0];
+        let winningCard: Card;
+        const suitIndicesPlayed = new Set(this.trickInProgressCards.map(card => card.suit.rankForTrumpPreference));
+        const suitIndexSum = [...suitIndicesPlayed].reduce((left, right) => left + right);
+
+        // if only single suit played, or two 'opposite' suits, then highest of led suit
+        if (
+            (suitIndicesPlayed.size === 1) ||
+            ((suitIndicesPlayed.size === 2) && (suitIndexSum % 2 === 0))) {
+
+            const ledSuitCardsPlayed = this.trickInProgressCards.filter(
+                (card) => Suit.suitEquals(card.suit, this.currentLedSuit as Suit)
+            );
+            winningCard = Card.singleHighestCard(ledSuitCardsPlayed);
+        } else if (suitIndicesPlayed.size <= 3) {
+        // if two consecutive suits, higher is trumps, and highest played wins
+        // if three suits, highest when put consecutively wins
+            let trumpSuitIndex: number;
+            // there is probably a neater way to do this
+            if (suitIndicesPlayed.size === 3) {
+                switch (suitIndexSum) {
+                    case 3:
+                        // (0, 1, 2)
+                        trumpSuitIndex = 2;
+                        break;
+                    case 4:
+                        // (3, 0, 1)
+                        trumpSuitIndex = 1;
+                        break;
+                    case 5:
+                        // (2, 3, 0)
+                        trumpSuitIndex = 0;
+                        break;
+                    case 6:
+                        // (1, 2, 3)
+                        trumpSuitIndex = 3;
+                        break;
+                    default:
+                        trumpSuitIndex = -1;
+                        break;
+                }
+            } else {
+                switch (suitIndexSum) {
+                    case 1:
+                        // (0, 1)
+                        trumpSuitIndex = 1;
+                        break;
+                    case 5:
+                        // (2, 3)
+                        trumpSuitIndex = 3;
+                        break;
+                    case 3:
+                        if (Math.max(...suitIndicesPlayed) === 2) {
+                            // (1, 2)
+                            trumpSuitIndex = 2;
+                        } else {
+                            // (3, 0)
+                            trumpSuitIndex = 0;
+                        }
+                        break;
+                    default:
+                        trumpSuitIndex = -1;
+                        break;
+                }
+            }
+
+            const trumpSuitCardsPlayed = this.trickInProgressCards.filter(
+                (card) => card.suit.rankForTrumpPreference === trumpSuitIndex
+            );
+            winningCard = Card.singleHighestCard(trumpSuitCardsPlayed);
+        } else {
+            // all four - highest of all, with ties to latest
+            const highestRankedCards = Card.highestCards(this.trickInProgressCards);
+            winningCard = highestRankedCards[highestRankedCards.length - 1];
+        }
+
+        return winningCard;
     }
 
 

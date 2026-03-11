@@ -92,14 +92,23 @@ export class Card {
         return lowestCards;
     }
 
-    static singleHighestCard(cards: Card[]): Card {
+    static highestCards(cards: Card[]): Card[] {
         const highestRank = Math.max(...cards.map(card => card.rank.trickTakingRank));
         const highestCards = cards.filter(
             card => card.rank.trickTakingRank === highestRank
         )
+        return highestCards;
+    }
+
+    static singleHighestCard(cards: Card[]): Card {
+        const highestCards = this.highestCards(cards);
         if (highestCards.length > 1) {
             // TODO: error
             console.log(`Too many highest cards: ${highestCards}`);
+        }
+        if (highestCards.length === 0) {
+            // TODO: error
+            console.log(`No highest cards: ${highestCards} from ${cards}`);
         }
         return highestCards[0];
     }
