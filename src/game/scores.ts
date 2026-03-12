@@ -87,6 +87,7 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     const rank_counter = counter(trick_ranks.map(rank => rank.name));
     const suit_counter = counter(trick_suits.map(suit => suit.name));
     const rank_counts = Object.values(rank_counter).sort();
+    const suit_counts = Object.values(suit_counter).sort();
 
     // n-of-a-rank categories
     if (arraysEqual(rank_counts, [4])) {
@@ -98,6 +99,8 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     } else if (arraysEqual(rank_counts, [1, 1, 2])) {
         score_categories.push(categories['pair']);
     }
+
+    // TODO: runs / running flushes
 
     // count categories
     if (valueSum(trick_ranks) === 31) {
@@ -115,6 +118,11 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
             score_categories.push(categories['jack_havel']);
         }
     }
+    // simple flush
+    if (arraysEqual(suit_counts, [4])) {
+        score_categories.push(categories['flush']);
+    }
+
     // final trick bonus
     // TODO: get number from somewhere?
     if (trick_index === 12) {
