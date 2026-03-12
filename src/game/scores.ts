@@ -22,13 +22,13 @@ export const categories = {
 
 export type categoryName = keyof typeof categories;
 
-function ranks_at_indices(ranks: Rank[], indices: number[]): Rank[] {
+function ranksAtIndices(ranks: Rank[], indices: number[]): Rank[] {
     return indices.map(
         idx => ranks[idx]
     );
 }
 
-function value_sum(ranks: Rank[]): number {
+function valueSum(ranks: Rank[]): number {
     return ranks.map(
         (rank) => rank.count_value
     ).reduce(
@@ -36,7 +36,7 @@ function value_sum(ranks: Rank[]): number {
     );
 }
 
-function fifteen_count(ranks: Rank[]): number { 
+function fifteenCount(ranks: Rank[]): number { 
     const possible_index_pairs = [
         [0, 1],
         [0, 2],
@@ -51,7 +51,7 @@ function fifteen_count(ranks: Rank[]): number {
         [0, 1, 2, 3],
     ];
     return possible_index_pairs.filter(
-        idx_set => value_sum(ranks_at_indices(ranks, idx_set)) === 15
+        idx_set => valueSum(ranksAtIndices(ranks, idx_set)) === 15
     ).length;
 }
 
@@ -59,11 +59,21 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
 
-    if (value_sum(trick_ranks) === 31) {
+    // count categories
+    if (valueSum(trick_ranks) === 31) {
         score_categories.push(categories['31']);
     }
-    for (let i = 0; i < fifteen_count(trick_ranks); i++) {
+    for (let i = 0; i < fifteenCount(trick_ranks); i++) {
         score_categories.push(categories['15']);
+    }
+    // Jack Havel
+    // nicer way to get this card, less deconstructed??
+    if (trick.filter(card => card.rank.toStringShort() === "J" && Suit.suitEquals(card.suit, seasonal_suit)).length > 0) {
+        if (dealer_won) {
+            score_categories.push(categories['jack_havel_dealer']);
+        } else {
+            score_categories.push(categories['jack_havel']);
+        }
     }
 
     return score_categories;
