@@ -22,6 +22,31 @@ export const categories = {
 
 export type categoryName = keyof typeof categories;
 
+function counter(str_arr: string[]): { [key: string]: number } {
+    let counter: { [key: string]: number } = {};
+    for (let i = 0; i < str_arr.length; i++) {
+        const element = str_arr[i];
+        if (counter[element]) {
+            counter[element]++;
+        } else {
+            counter[element] = 1;
+        }
+    }
+    return counter;
+}
+
+function arraysEqual(arr1: any[], arr2: any[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function ranksAtIndices(ranks: Rank[], indices: number[]): Rank[] {
     return indices.map(
         idx => ranks[idx]
@@ -58,6 +83,21 @@ function fifteenCount(ranks: Rank[]): number {
 export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
+    const trick_suits = trick.map(card => card.suit);
+    const rank_counter = counter(trick_ranks.map(rank => rank.name));
+    const suit_counter = counter(trick_suits.map(suit => suit.name));
+    const rank_counts = Object.values(rank_counter).sort();
+
+    // n-of-a-rank categories
+    if (arraysEqual(rank_counts, [4])) {
+        score_categories.push(categories['double_prial']);
+    } else if (arraysEqual(rank_counts, [1, 3])) {
+        score_categories.push(categories['prial']);
+    } else if (arraysEqual(rank_counts, [2, 2])) {
+        score_categories.push(categories['pair'], categories['pair']);
+    } else if (arraysEqual(rank_counts, [1, 1, 2])) {
+        score_categories.push(categories['pair']);
+    }
 
     // count categories
     if (valueSum(trick_ranks) === 31) {
