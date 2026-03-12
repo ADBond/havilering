@@ -75,6 +75,11 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
             score_categories.push(categories['jack_havel']);
         }
     }
+    // final trick bonus
+    // TODO: get number from somewhere?
+    if (trick_index === 12) {
+        score_categories.push(categories['final_trick']);
+    }
 
     return score_categories;
 }
