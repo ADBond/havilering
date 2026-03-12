@@ -133,7 +133,7 @@ export class ModelEncoder {
     }
 }
 
-export const flawedSmallModelEncoder = new ModelEncoder(
+export const smallModelEncoder = new ModelEncoder(
     [
         "hand",
         "trickNumber",

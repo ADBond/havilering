@@ -1,9 +1,9 @@
-import { flawedSmallModelEncoder } from "./encode";
+import { smallModelEncoder } from "./encode";
 
 export const modelCatalogue = {
     velvet_swimming: {
         folder: "velvet_swimming",
-        encoder: flawedSmallModelEncoder,
+        encoder: smallModelEncoder,
     },
 }
 export type modelName = keyof typeof modelCatalogue;

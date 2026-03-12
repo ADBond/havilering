@@ -8,8 +8,8 @@ import { tensorWrap } from "../encode";
 
 export async function loadModel(name: modelName) {
 
-  const base = import.meta.env.BASE_URL || "/pippins/";
-  const modelUrl = `${base}models/${name}/simple_model_2.onnx`;
+  const base = import.meta.env.BASE_URL || "/havilering/";
+  const modelUrl = `${base}models/${name}/simple_model_3.onnx`;
   console.log(modelUrl);
   const session = await ort.InferenceSession.create(modelUrl);
   console.log('output names:');

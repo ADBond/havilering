@@ -5,7 +5,7 @@ let game: Game;
 
 export function newGame(): void {
     game = new Game(
-        ['human', 'random', 'random', 'random'],
+        ['human', 'velvet_swimming', 'velvet_swimming', 'velvet_swimming'],
         defaultConfig,
     );
 }
