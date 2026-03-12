@@ -1,5 +1,10 @@
 export class Rank {
-    constructor(public name: string, public trickTakingRank: number, public score: number, public ttRankAbove: number) { }
+    constructor(
+        public name: string,
+        public trickTakingRank: number,
+        public ttRankAbove: number,
+        public count_value: number,
+    ) { }
 
     toString(): string {
         return this.name;
@@ -115,15 +120,16 @@ export class Card {
 }
 
 export const RANKS: Rank[] = [
-    ...Array.from({ length: 9 }, (_, i) => {
+    ...Array.from({ length: 8 }, (_, i) => {
         const val = i + 2;
-        return new Rank(val !== 10 ? String(val) : "T", val, val, val + 1);
+        return new Rank(String(val), val, val + 1, val);
     }),
-    new Rank("J", 11, 12, 12),
-    new Rank("Q", 12, 15, 13),
-    new Rank("K", 13, 18, 14),
+    new Rank("T", 10, 11, 10),
+    new Rank("J", 11, 12, 10),
+    new Rank("Q", 12, 13, 10),
+    new Rank("K", 13, 14, 10),
     // Default rank above
-    new Rank("A", 14, 1, 4),
+    new Rank("A", 14, 2, 1),
 ];
 
 export const SUITS: Suit[] = [

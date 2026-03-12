@@ -69,7 +69,13 @@ export async function renderState(state: GameStateForUI) {
   const scoreCategoriesText = state.scoresAndCategories.map(
     ([category, score]) => `${score} (${category})`
   );
-  breakdownEl.textContent = `prev: ${scoreCategoriesText.join(' + ')}`;
+  let totalScorePrev: number;
+  if (state.scoresAndCategories.length === 0) {
+    totalScorePrev = 0;
+  } else {
+    totalScorePrev = state.scoresAndCategories.map(([_cat, score]) => score).reduce((l, r) => l + r);
+  }
+  breakdownEl.textContent = `prev: ${totalScorePrev}: ${scoreCategoriesText.join(' + ')}`;
 
   const nameLookup = {
     comp2: 'Player & N',
