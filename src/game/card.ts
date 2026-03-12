@@ -142,6 +142,10 @@ export const SUITS: Suit[] = [
 export const arbitrarySuit = SUITS[0];
 export const N_SUITS = SUITS.length;
 
+export function getSuit(shortName: string): Suit {
+    return SUITS.filter(suit => suit.toStringShort() === shortName)[0];
+}
+
 export function getFullPack(): Card[] {
     const cards = [];
     let index = 0;

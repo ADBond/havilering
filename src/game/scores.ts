@@ -22,6 +22,12 @@ export const categories = {
 
 export type categoryName = keyof typeof categories;
 
+function ranks_at_indices(ranks: Rank[], indices: number[]): Rank[] {
+    return indices.map(
+        idx => ranks[idx]
+    );
+}
+
 function value_sum(ranks: Rank[]): number {
     return ranks.map(
         (rank) => rank.count_value
@@ -30,12 +36,34 @@ function value_sum(ranks: Rank[]): number {
     );
 }
 
+function fifteen_count(ranks: Rank[]): number { 
+    const possible_index_pairs = [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 2],
+        [1, 3],
+        [2, 3],
+        [0, 1, 2],
+        [0, 1, 3],
+        [0, 2, 3],
+        [1, 2, 3],
+        [0, 1, 2, 3],
+    ];
+    return possible_index_pairs.filter(
+        idx_set => value_sum(ranks_at_indices(ranks, idx_set)) === 15
+    ).length;
+}
+
 export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
 
     if (value_sum(trick_ranks) === 31) {
         score_categories.push(categories['31']);
+    }
+    for (let i = 0; i < fifteen_count(trick_ranks); i++) {
+        score_categories.push(categories['15']);
     }
 
     return score_categories;

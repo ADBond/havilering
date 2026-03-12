@@ -1,6 +1,6 @@
-import { Card, Suit, getFullPack, shuffle } from "./card";
+import { Card, Suit, getFullPack, getSuit, shuffle } from "./card";
 import { Player, PlayerName, playerNameArr } from "./player";
-import { scoreCategory } from "./scores";
+import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
 import { GameLog } from "./log";
 
@@ -24,7 +24,8 @@ export class GameState {
     public currentState: state = 'game_initialise';
 
     public previousTrick: [Card, Player][] = [];
-    public scoresAndCategories: [scoreCategory, number][] = [];
+    public scoresAndCategories: scoreCategory[] = [];
+    public seasonalSuit: Suit = getSuit('D');  // TODO: dynamic
 
     constructor(public playerNames: AgentName[], public config: GameConfig) {
         // TODO: more / flexi ??
@@ -398,9 +399,14 @@ export class GameState {
 
     updateScores(winnerPlayerIndex: number): number {
 
-        const categoriesAndScores: [scoreCategory, number][] = [];
+        const categoriesAndScores: scoreCategory[] = trickScoreCategories(
+            this.trickInProgressCards,
+            this.seasonalSuit,
+            this.trickWinnerPlayer().positionIndex === this.dealerIndex,
+            this.trickIndex,
+        );
         const trickValue = categoriesAndScores.map(
-            ([_category, score]) => score
+            (category) => category.points
         ).reduce(
             (x, y) => x + y, 0
         );
@@ -413,29 +419,10 @@ export class GameState {
         this.players[(winnerPlayerIndex + 3) % this.numPlayers].scores.push(0);
 
         this.scoresAndCategories = categoriesAndScores
+        console.log("Scores on the doors");
+        console.log(categoriesAndScores);
+        console.log(trickValue);
         return trickValue;
-
-        // cats_and_score = trick_score_cats(
-        //     self.trick_in_progress,
-        //     self.seasonal_suit,
-        //     self.dealer_index == self.trick_winner_player_index,
-        //     self.trick_index,
-        // )
-        // cat_scores = [value for _cat, value in cats_and_score]
-        // trick_value = sum(cat_scores)
-
-        // self.players[self.trick_winner_player_index].scores.append(trick_value)
-        // self.players[
-        //     (self.trick_winner_player_index + 2) % self.num_players
-        // ].scores.append(trick_value)
-        // # other players explicitly score 0 !
-        // self.players[
-        //     (self.trick_winner_player_index + 1) % self.num_players
-        // ].scores.append(0)
-        // self.players[
-        //     (self.trick_winner_player_index + 3) % self.num_players
-        // ].scores.append(0)
-        // self.score_cat_info = cats_and_score
     }
 
     get gameIsFinished(): boolean {
@@ -483,7 +470,7 @@ export interface GameStateForUI {
 
     scores: Record<PlayerName, number>,
     prevScores: Record<PlayerName, number>,
-    scoresAndCategories: [scoreCategory, number][],
+    scoresAndCategories: scoreCategory[],
 
     handNumber: number;
     trickNumber: number;

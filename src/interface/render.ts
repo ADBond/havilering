@@ -67,13 +67,13 @@ export async function renderState(state: GameStateForUI) {
   const breakdownEl = document.getElementById('scores-breakdown') as HTMLSpanElement;
 
   const scoreCategoriesText = state.scoresAndCategories.map(
-    ([category, score]) => `${score} (${category})`
+    category => `${category.points} (${category.name})`
   );
   let totalScorePrev: number;
   if (state.scoresAndCategories.length === 0) {
     totalScorePrev = 0;
   } else {
-    totalScorePrev = state.scoresAndCategories.map(([_cat, score]) => score).reduce((l, r) => l + r);
+    totalScorePrev = state.scoresAndCategories.map((category) => category.points).reduce((l, r) => l + r, 0);
   }
   breakdownEl.textContent = `prev: ${totalScorePrev}: ${scoreCategoriesText.join(' + ')}`;
 
