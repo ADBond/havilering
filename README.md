@@ -1,6 +1,6 @@
 # Havilering
 
-Play Havilering online!
+Play Havilering online! Be the top crab!
 
 ## Code
 

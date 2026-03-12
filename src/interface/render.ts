@@ -66,10 +66,10 @@ export async function renderState(state: GameStateForUI) {
   const scoresTableEl = document.getElementById('scores-table') as HTMLTableElement;
   const breakdownEl = document.getElementById('scores-breakdown') as HTMLSpanElement;
 
-  const lastTrickScoresText = state.lastTrickCardScores.map(
-    ([card, score]) => `${score} (${card.toStringShort()})`
+  const scoreCategoriesText = state.scoresAndCategories.map(
+    ([category, score]) => `${score} (${category})`
   );
-  breakdownEl.textContent = `prev: ${lastTrickScoresText.join(' + ')}`;
+  breakdownEl.textContent = `prev: ${scoreCategoriesText.join(' + ')}`;
 
   const nameLookup = {
     comp2: 'Player & N',
