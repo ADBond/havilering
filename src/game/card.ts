@@ -146,6 +146,10 @@ export function getSuit(shortName: string): Suit {
     return SUITS.filter(suit => suit.toStringShort() === shortName)[0];
 }
 
+export function getRank(shortName: string): Rank {
+    return RANKS.filter(rank => rank.toStringShort() === shortName)[0];
+}
+
 export function getFullPack(): Card[] {
     const cards = [];
     let index = 0;

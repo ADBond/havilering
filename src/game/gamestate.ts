@@ -48,7 +48,7 @@ export class GameState {
 
     public async increment(log: GameLog) {
         const state = this.currentState;
-        console.log(`Incrementing state - currently: ${state}`);
+        // console.log(`Incrementing state - currently: ${state}`);
         switch (state) {
             case 'game_initialise':
                 this.dealCards(log);
@@ -356,12 +356,12 @@ export class GameState {
         }
 
         // TODO now pack should be empty
-        console.log("Empty pack:");
-        console.log([...pack]);
-        console.log([...this.getPlayerHand(0)]);
-        console.log([...this.getPlayerHand(1)]);
-        console.log([...this.getPlayerHand(2)]);
-        console.log([...this.getPlayerHand(3)]);
+        // console.log("Empty pack:");
+        // console.log([...pack]);
+        // console.log([...this.getPlayerHand(0)]);
+        // console.log([...this.getPlayerHand(1)]);
+        // console.log([...this.getPlayerHand(2)]);
+        // console.log([...this.getPlayerHand(3)]);
         this.currentState = 'play_card';
         this.currentPlayerIndex = this.getNextPlayerIndex(this.dealerIndex);
         this.handNumber++;
@@ -419,9 +419,9 @@ export class GameState {
         this.players[(winnerPlayerIndex + 3) % this.numPlayers].scores.push(0);
 
         this.scoresAndCategories = categoriesAndScores
-        console.log("Scores on the doors");
-        console.log(categoriesAndScores);
-        console.log(trickValue);
+        // console.log("Scores on the doors");
+        // console.log(categoriesAndScores);
+        // console.log(trickValue);
         return trickValue;
     }
 

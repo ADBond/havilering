@@ -43,6 +43,9 @@ function counter(str_arr: string[]): { [key: string]: number } {
 }
 
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
+    // console.log("Comparing arrays");
+    // console.log(arr1);
+    // console.log(arr2);
     if (arr1.length !== arr2.length) {
         return false;
     }
@@ -51,6 +54,7 @@ function arraysEqual(arr1: any[], arr2: any[]): boolean {
             return false;
         }
     }
+    // console.log("same");
     return true;
 }
 
@@ -90,7 +94,8 @@ function fifteenCount(ranks: Rank[]): number {
 function is4Run(ranks: Rank[]): boolean {
     const indices = ranks.map(
         (rank) => rank.trickTakingRank
-    ).sort();
+    ).sort((a, b) => a - b);
+    // console.log(indices);
     // TODO: check ranks.length === 4
     if (
         (indices[3] === indices[2] + 1) &&
@@ -122,7 +127,7 @@ function has3Run(ranks: Rank[]): boolean {
         )
     );
     // deduped set of ranks
-    const indices = [...ranksSet].sort();
+    const indices = [...ranksSet].sort((a, b) => a - b);
     if (indices.length >= 3) {
         // first 3 ranks form a run
         if (
@@ -250,3 +255,12 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
 
     return score_categories;
 }
+
+// testing, sorry:
+
+// import { getRank } from "./card";
+
+// console.log("test case:")
+// const tcase = [getRank('K'), getRank('Q'), getRank('A'), getRank('2')];
+// console.log(tcase);
+// console.log(is4Run(tcase));
