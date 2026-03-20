@@ -1,4 +1,4 @@
-import { Card, Suit, getFullPack, getSuit, shuffle } from "./card";
+import { Card, Suit, getFullPack, getSuits, getSuitAsSeasonal, rotArr, shuffle } from "./card";
 import { Player, PlayerName, playerNameArr } from "./player";
 import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
@@ -25,7 +25,8 @@ export class GameState {
 
     public previousTrick: [Card, Player][] = [];
     public scoresAndCategories: scoreCategory[] = [];
-    public seasonalSuit: Suit;  // TODO: dynamic
+    public seasonalSuit: Suit;
+    public suits: Suit[];
 
     constructor(public playerNames: AgentName[], public config: GameConfig, public seasonalSuitShort: string) {
         // TODO: more / flexi ??
@@ -45,7 +46,9 @@ export class GameState {
         this.currentPlayerIndex = 0;
         this.trickIndex = 0;
         this.pack = getFullPack(this.seasonalSuitShort);
-        this.seasonalSuit = getSuit(this.seasonalSuitShort);
+        this.seasonalSuit = getSuitAsSeasonal(this.seasonalSuitShort);
+        // rotate it so that seasonal is right-most
+        this.suits = rotArr(getSuits(this.seasonalSuitShort));
     }
 
     public async increment(log: GameLog) {
@@ -327,9 +330,11 @@ export class GameState {
         }
 
         const index = hand.findIndex(
-            c => c.rank === card.rank && c.suit === card.suit
+            c =>  Card.cardEquals(c, card)
         );
         if (index < 0) {
+            console.log("Couldn't find card in hand!");
+            console.log(`Card: ${card} in hand ${hand}`);
             return false;
         }
         const [playedCard] = hand.splice(index, 1);
@@ -461,6 +466,7 @@ export class GameState {
             handNumber: this.handNumber,
             trickNumber: this.trickNumber,
             target: this.config.targetScore,
+            suits: this.suits,
         })
     }
 }
@@ -480,4 +486,6 @@ export interface GameStateForUI {
 
     gameState: state;
     whoseTurn: PlayerName;
+
+    suits: Suit[];
 }

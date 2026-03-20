@@ -26,6 +26,13 @@ export class Rank {
 export class Suit {
     constructor(public name: string, public rankForTrumpPreference: number, public html: string) { }
 
+    get rankForSorting(): number {
+        if (this.rankForTrumpPreference === 0) { 
+            return 10;
+        }
+        return this.rankForTrumpPreference;
+    }
+
     toString(): string {
         return this.name;
     }
@@ -136,24 +143,38 @@ export const RANKS: Rank[] = [
 // we just rotate around this
 const seasonal_suit_index = 0;
 
-function getSuits(seasonal_suit_short: string = "D"): Suit[] {
-    // TODO: rotate this around according to injection
-    return [
-        new Suit("Diamonds", 0, "&diams;"),
-        new Suit("Hearts", 1, "&hearts;"),
-        new Suit("Spades", 2, "&spades;"),
-        new Suit("Clubs", 3, "&clubs;"),
-    ];
+// TODO: named instead?
+const suitsData = [
+    { name: "Diamonds", html: "&diams;"},
+    { name: "Hearts", html: "&hearts;"},
+    { name: "Spades", html: "&spades;"},
+    { name: "Clubs", html: "&clubs;"},
+]
+
+export function rotArr(arr: any[]): any[] {
+    // [1, 2, 3] -> [2, 3, 1]
+    arr.push(arr.shift());
+    return arr;
+}
+
+export function getSuits(seasonal_suit_short: string = "D"): Suit[] {
+    let suits = suitsData;
+    while (suits[0].name[0] !== seasonal_suit_short) {
+        rotArr(suits);
+        // console.log(suits);
+    }
+    return suits.map(
+        (suitData, idx) => new Suit(suitData.name, idx, suitData.html)
+    );
 }
 
 
 export const arbitrarySuit = getSuits()[0];
 export const N_SUITS = getSuits().length;
 
-export function getSuit(shortName: string): Suit {
-    // return SUITS.filter(suit => suit.toStringShort() === shortName)[0];
-    // TODO: implement
-    return arbitrarySuit;
+export function getSuitAsSeasonal(shortName: string): Suit {
+    const suitData =  suitsData.filter(suitData => suitData.name[0] === shortName)[0];
+    return new Suit(suitData.name, seasonal_suit_index, suitData.html);
 }
 
 export function getRank(shortName: string): Rank {

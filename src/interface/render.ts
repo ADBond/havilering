@@ -12,7 +12,7 @@ export async function renderState(state: GameStateForUI) {
     (c1, c2) => (
       // 100 big enough to ensure we always sort by suit first
       // TODO: align order with season
-      100 * (c1.suit.rankForTrumpPreference - c2.suit.rankForTrumpPreference) +
+      100 * (c1.suit.rankForSorting - c2.suit.rankForSorting) +
       (c1.rank.trickTakingRank - c2.rank.trickTakingRank)
     )
   );
@@ -54,12 +54,12 @@ export async function renderState(state: GameStateForUI) {
   // and current status
   document.getElementById('hand-number')!.innerText = `(hand #${state.handNumber}, trick #${state.trickNumber})`;
 
+  console.log(state.suits);
   // TODO: rename from trumps for clarity
   const trumpsEl = document.getElementById('trump-holder')!;
   trumpsEl.innerHTML = '';
-  // TODO: dynamic season
-  ['JH', 'JS', 'JC', 'JD'].forEach(card_str => {
-    const el = createCardElement(card_str);
+  state.suits.forEach(suit => {
+    const el = createCardElement(`J${suit.toStringShort()}`);
     trumpsEl.appendChild(el);
   });
 
