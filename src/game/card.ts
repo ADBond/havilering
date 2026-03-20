@@ -26,6 +26,13 @@ export class Rank {
 export class Suit {
     constructor(public name: string, public rankForTrumpPreference: number, public html: string) { }
 
+    get rankForSorting(): number {
+        if (this.rankForTrumpPreference === 0) { 
+            return 10;
+        }
+        return this.rankForTrumpPreference;
+    }
+
     toString(): string {
         return this.name;
     }
@@ -132,26 +139,51 @@ export const RANKS: Rank[] = [
     new Rank("A", 14, 2, 1),
 ];
 
-export const SUITS: Suit[] = [
-    new Suit("Diamonds", 0, "&diams;"),
-    new Suit("Hearts", 1, "&hearts;"),
-    new Suit("Spades", 2, "&spades;"),
-    new Suit("Clubs", 3, "&clubs;"),
-];
+// models always understand the seasonal suit as the one with index 0
+// we just rotate around this
+const seasonal_suit_index = 0;
 
-export const arbitrarySuit = SUITS[0];
-export const N_SUITS = SUITS.length;
+// TODO: named instead?
+const suitsData = [
+    { name: "Diamonds", html: "&diams;"},
+    { name: "Hearts", html: "&hearts;"},
+    { name: "Spades", html: "&spades;"},
+    { name: "Clubs", html: "&clubs;"},
+]
 
-export function getSuit(shortName: string): Suit {
-    return SUITS.filter(suit => suit.toStringShort() === shortName)[0];
+export function rotArr(arr: any[]): any[] {
+    // [1, 2, 3] -> [2, 3, 1]
+    arr.push(arr.shift());
+    return arr;
+}
+
+export function getSuits(seasonal_suit_short: string = "D"): Suit[] {
+    let suits = suitsData;
+    while (suits[0].name[0] !== seasonal_suit_short) {
+        rotArr(suits);
+        // console.log(suits);
+    }
+    return suits.map(
+        (suitData, idx) => new Suit(suitData.name, idx, suitData.html)
+    );
+}
+
+
+export const arbitrarySuit = getSuits()[0];
+export const N_SUITS = getSuits().length;
+
+export function getSuitAsSeasonal(shortName: string): Suit {
+    const suitData =  suitsData.filter(suitData => suitData.name[0] === shortName)[0];
+    return new Suit(suitData.name, seasonal_suit_index, suitData.html);
 }
 
 export function getRank(shortName: string): Rank {
     return RANKS.filter(rank => rank.toStringShort() === shortName)[0];
 }
 
-export function getFullPack(): Card[] {
+export function getFullPack(seasonal_suit_short: string): Card[] {
     const cards = [];
+    const SUITS = getSuits(seasonal_suit_short);
     let index = 0;
     for (const rank of RANKS) {
         if (rank.name === "A") {
@@ -166,7 +198,8 @@ export function getFullPack(): Card[] {
     return cards;
 }
 
-export const packSize = getFullPack().length;
+// suit doesn't matter here
+export const packSize = getFullPack("D").length;
 
 export function shuffle(cards: Card[]) {
     for (let i = cards.length - 1; i > 0; i--) {

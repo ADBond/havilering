@@ -1,7 +1,7 @@
 import '../ort-init/';
 import * as ort from 'onnxruntime-web/wasm'
 
-import { Card, N_SUITS, SUITS, packSize } from './card';
+import { Card, N_SUITS, packSize } from './card';
 import { GameState } from "./gamestate";
 
 
