@@ -463,6 +463,7 @@ export class GameState {
 
             gameState: this.currentState,
             whoseTurn: this.currentPlayer.name,
+            dealer: this.players[this.dealerIndex].name,
             handNumber: this.handNumber,
             trickNumber: this.trickNumber,
             target: this.config.targetScore,
@@ -486,6 +487,7 @@ export interface GameStateForUI {
 
     gameState: state;
     whoseTurn: PlayerName;
+    dealer: PlayerName;
 
     suits: Suit[];
 }
