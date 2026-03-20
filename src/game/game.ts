@@ -28,9 +28,10 @@ export class Game {
   constructor(
       playerNames: AgentName[],
       config: GameConfig = defaultConfig,
+      seasonalSuitShort: string,
     ) {
     this.gameID = randomID();
-    this.state = new GameState(playerNames, config, 'H');
+    this.state = new GameState(playerNames, config, seasonalSuitShort);
     this.currentLog = new GameLog(this.gameID, config, playerNames);
     this.playerNames = playerNames;
   }
