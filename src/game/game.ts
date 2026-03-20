@@ -30,7 +30,7 @@ export class Game {
       config: GameConfig = defaultConfig,
     ) {
     this.gameID = randomID();
-    this.state = new GameState(playerNames, config);
+    this.state = new GameState(playerNames, config, 'H');
     this.currentLog = new GameLog(this.gameID, config, playerNames);
     this.playerNames = playerNames;
   }

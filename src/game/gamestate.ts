@@ -14,7 +14,7 @@ export class GameState {
     public dealerIndex: number;
     public currentPlayerIndex: number;
     public leaderIndex: number | null = null;
-    public pack: Card[] = getFullPack();
+    public pack: Card[];
 
     public players: Player[] = [];
     public trickIndex: number;
@@ -25,9 +25,9 @@ export class GameState {
 
     public previousTrick: [Card, Player][] = [];
     public scoresAndCategories: scoreCategory[] = [];
-    public seasonalSuit: Suit = getSuit('D');  // TODO: dynamic
+    public seasonalSuit: Suit;  // TODO: dynamic
 
-    constructor(public playerNames: AgentName[], public config: GameConfig) {
+    constructor(public playerNames: AgentName[], public config: GameConfig, public seasonalSuitShort: string) {
         // TODO: more / flexi ??
         const playerConfig: PlayerName[] = ['player', 'comp1', 'comp2', 'comp3'];
         const agents: Agent[] = playerNames.map((name) => agentLookup(name));
@@ -44,6 +44,8 @@ export class GameState {
         // dummy values:
         this.currentPlayerIndex = 0;
         this.trickIndex = 0;
+        this.pack = getFullPack(this.seasonalSuitShort);
+        this.seasonalSuit = getSuit(this.seasonalSuitShort);
     }
 
     public async increment(log: GameLog) {
@@ -344,7 +346,7 @@ export class GameState {
 
     // TODO: seed?
     dealCards(log: GameLog): void {
-        const pack = getFullPack();
+        const pack = getFullPack(this.seasonalSuitShort);
         shuffle(pack);
         for (let i = 0; i < 13; i++) {
             // for (const player of this.state.players) {
