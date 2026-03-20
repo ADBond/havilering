@@ -53,6 +53,11 @@ body {
     height: 110px;
 }
 
+.dealer {
+    background-color: rgb(206, 0, 206);
+    border-radius: 5px;
+}
+
 .card {
     display: inline-block;
     width: 72px;

@@ -26,6 +26,9 @@ export async function renderState(state: GameStateForUI) {
   playerNameArr.forEach(p => {
     const playedEl = document.getElementById(`played-${p}`)!;
     playedEl.innerHTML = '';
+    if (p === state.dealer) {
+      playedEl.classList.add('dealer');
+    }
     const card = state.played[p as PlayerName];
     let el: HTMLElement;
     if (card === 'back') {
