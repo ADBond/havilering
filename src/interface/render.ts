@@ -28,6 +28,8 @@ export async function renderState(state: GameStateForUI) {
     playedEl.innerHTML = '';
     if (p === state.dealer) {
       playedEl.classList.add('dealer');
+    } else {
+      playedEl.classList.remove('dealer');
     }
     const card = state.played[p as PlayerName];
     let el: HTMLElement;
