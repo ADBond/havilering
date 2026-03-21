@@ -435,7 +435,7 @@ export class GameState {
     get gameIsFinished(): boolean {
         return this.players.map(
             (player) => player.score
-        ).some((score) => score > this.config.targetScore)
+        ).some((score) => score >= this.config.targetScore)
     }
 
     completeLog(log: GameLog) {
