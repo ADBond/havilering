@@ -1,5 +1,5 @@
 import { GameConfig, GameState, GameStateForUI } from "./gamestate";
-import { GameLog } from "./log";
+import { GameLog, sendGameLog } from "./log";
 import { AgentName } from "./agent/agent";
 
 export const defaultConfig: GameConfig = {
@@ -40,7 +40,7 @@ export class Game {
     await this.state.increment(this.currentLog);
     if (this.currentLog.complete) {
       this.logs.push(this.currentLog);
-      // sendGameLog(this.currentLog);
+      sendGameLog(this.currentLog);
       this.currentLog = new GameLog(this.gameID, this.state.config, this.playerNames, this.state.seasonalSuitShort);
     }
   }

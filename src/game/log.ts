@@ -67,3 +67,25 @@ export class GameLog {
     }
 }
 
+// send game log to storage
+export async function sendGameLog(log: GameLog) {
+    console.log("Game Log:");
+    console.log(log);
+    try {
+        const res = await fetch("https://qaw-games.netlify.app/.netlify/functions/saveGameLog", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(log),
+        });
+
+        if (!res.ok) {
+            console.warn("Game log upload failed:", res.status, await res.text());
+            return;
+        }
+        3.
+        const json = await res.json();
+        console.log("Log saved:", json);
+    } catch (err) {
+        console.warn("Could not send game log (offline?):", err);
+    }
+}
