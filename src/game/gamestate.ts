@@ -386,6 +386,13 @@ export class GameState {
         const winnerPlayerIndex = winnerPlayer.positionIndex;
         this.currentPlayerIndex = winnerPlayerIndex;
         const trickValue = this.updateScores(winnerPlayerIndex);
+        log.captureTrick(
+            trickValue,
+            this.trickInProgress,
+            winnerPlayer.positionIndex,
+            this.scoresAndCategories.map(score_cat => score_cat.name),
+        );
+
         if (this.gameIsFinished) {
             this.currentState = "game_complete";
             return;
@@ -393,7 +400,6 @@ export class GameState {
 
         this.previousTrick = this.trickInProgress
 
-        log.captureTrick(trickValue, this.trickInProgress, winnerPlayer.positionIndex);
         // empty the trick, and increment the counter!
         this.trickInProgress = [];
         this.trickIndex++;
@@ -425,7 +431,7 @@ export class GameState {
         this.players[(winnerPlayerIndex + 1) % this.numPlayers].scores.push(0);
         this.players[(winnerPlayerIndex + 3) % this.numPlayers].scores.push(0);
 
-        this.scoresAndCategories = categoriesAndScores
+        this.scoresAndCategories = categoriesAndScores;
         // console.log("Scores on the doors");
         // console.log(categoriesAndScores);
         // console.log(trickValue);
