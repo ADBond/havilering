@@ -32,7 +32,7 @@ export class Game {
     ) {
     this.gameID = randomID();
     this.state = new GameState(playerNames, config, seasonalSuitShort);
-    this.currentLog = new GameLog(this.gameID, config, playerNames);
+    this.currentLog = new GameLog(this.gameID, config, playerNames, seasonalSuitShort);
     this.playerNames = playerNames;
   }
 
@@ -41,7 +41,7 @@ export class Game {
     if (this.currentLog.complete) {
       this.logs.push(this.currentLog);
       // sendGameLog(this.currentLog);
-      this.currentLog = new GameLog(this.gameID, this.state.config, this.playerNames);
+      this.currentLog = new GameLog(this.gameID, this.state.config, this.playerNames, this.state.seasonalSuitShort);
     }
   }
 

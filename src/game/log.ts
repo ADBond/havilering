@@ -13,8 +13,8 @@ export class GameLog {
 
     public dealerIndex: number = -1;
     public handNumber: number = -1;
-    // each trick is array of player scores, [card, playerIndex], along with  winner index
-    // TODO: we should capture trick value also (instead?) of player scores
+    
+    // each trick is array of trick value, [card, playerIndex], along with  winner index
     private tricks: [number, [Card, number][], number][] = [];
 
     public startingScores: number[] = [];
@@ -23,14 +23,16 @@ export class GameLog {
     public complete: boolean = false;
     private version: string = getCommitHash();
     private logVersion: number = 1;
+    private game: string = 'havilering';
 
     constructor(
         private gameID: string,
         private config: GameConfig,
         private players: AgentName[],
+        private seasonalSuit: string,
     ) { }
 
-    captureTrick(score: number, trick: [Card, Player][], winnerIndex: number) {
+    captureTrick(score: number, trick: [Card, Player][], winnerIndex: number, cats: string[]) {
         this.tricks.push(
             [
                 score,
