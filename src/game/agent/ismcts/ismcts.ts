@@ -14,9 +14,7 @@ export class ISMCTSNode {
         private parent: ISMCTSNode | null = null,
     ) {}
 
-    public expand(legalMoves: number[]) {
-        // pick a random child node we haven't visited before
-        // only legal children
+    private untriedNodes(legalMoves: number[]): ISMCTSNode[] {
         const untriedNodes = legalMoves.filter(
             (move) => `${move}` in this.children
         ).map(
@@ -24,10 +22,29 @@ export class ISMCTSNode {
         ).filter(
             node => node.visits === 0
         );
-        return randomArrayElement(untriedNodes);
+        return untriedNodes;
+    }
+
+    public ensureChildrenExist(playerIndex: number, legalMoves: number[]) {
+        legalMoves.forEach(
+            move => {
+                if (!(`${move}` in this.children)) {
+                    const newChild = new ISMCTSNode(playerIndex, move, this);
+                    this.children[`${move}`] = newChild;
+                }
+            }
+        );
+    }
+
+    public expand(legalMoves: number[]) {
+        // pick a random child node we haven't visited before
+        // only legal children
+        return randomArrayElement(this.untriedNodes(legalMoves));
     }
 
     public isFullyExpanded(legalMoves: number[]) {
-        // TODO
+        // all legal children have been visited at least once
+        // TODO: do we need this as a separate thing? Seems inefficient
+        return this.untriedNodes(legalMoves).length === 0;
     }
 }
