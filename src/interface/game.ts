@@ -3,13 +3,14 @@ import { defaultConfig } from "../game/game";
 import { getSeasonalSuitShort } from "../utils/season";
 
 let game: Game;
+const opp = 'ismcts';
 
 export function newGame(): void {
     const dateNow = new Date();
     // dateNow.setDate(dateNow.getDate() - 1);
     const seasonalSuitShort = getSeasonalSuitShort(dateNow);
     game = new Game(
-        ['human', 'velvet_swimming', 'velvet_swimming', 'velvet_swimming'],
+        ['human', opp, opp, opp],
         defaultConfig,
         seasonalSuitShort,
     );
