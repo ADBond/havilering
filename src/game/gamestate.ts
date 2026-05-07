@@ -51,7 +51,7 @@ export class GameState {
         this.suits = rotArr(getSuits(this.seasonalSuitShort));
     }
 
-    public async increment(log: GameLog) {
+    public async increment(log: GameLog | null = null) {
         const state = this.currentState;
         // console.log(`Incrementing state - currently: ${state}`);
         switch (state) {
@@ -67,12 +67,16 @@ export class GameState {
             case 'hand_complete':
                 this.dealerIndex = this.getNextPlayerIndex(this.dealerIndex);
 
-                this.completeLog(log);
+                if (log !== null) {
+                    this.completeLog(log);
+                }
                 // initialise as separate state - keeps from doing too much at once
                 this.currentState = 'game_initialise';
                 break;
             case 'game_complete':
-                this.completeLog(log);
+                if (log !== null) {
+                    this.completeLog(log);
+                }
                 break;
             default:
             // error!
@@ -123,6 +127,10 @@ export class GameState {
         return this.players.filter(
             (player) => player.name === name
         )[0];
+    }
+
+    get prevTrickScores(): number[] {
+        return this.players.map(player => player.previousScore);
     }
 
     get scores(): number[] {
@@ -286,6 +294,15 @@ export class GameState {
         );
     }
 
+    public moveFromIndex(cardToPlayIndex: number): number {
+        const cardToPlay = Card.cardFromIndex(cardToPlayIndex, this.pack)
+
+        if (!this.playCard(cardToPlay)) {
+            console.log("Error playing card");
+        }
+        return cardToPlayIndex;
+    }
+
     private async computerMove(): Promise<number> {
         const agent = this.currentPlayer.agent;
         if (agent === 'human') {
@@ -301,12 +318,7 @@ export class GameState {
 
         const currentLegalMoves = this.legalMoveIndices;
         const cardToPlayIndex = await agent.chooseMove(this, currentLegalMoves);
-        const cardToPlay = Card.cardFromIndex(cardToPlayIndex, this.pack)
-
-        if (!this.playCard(cardToPlay)) {
-            console.log("Error playing card");
-        }
-        return cardToPlayIndex;
+        return this.moveFromIndex(cardToPlayIndex);
     }
 
     giveCardToPlayer(playerIndex: number, card: Card) {
@@ -350,7 +362,7 @@ export class GameState {
     }
 
     // TODO: seed?
-    dealCards(log: GameLog): void {
+    dealCards(log: GameLog | null): void {
         const pack = getFullPack(this.seasonalSuitShort);
         shuffle(pack);
         for (let i = 0; i < 13; i++) {
@@ -374,24 +386,29 @@ export class GameState {
         this.handNumber++;
         this.trickIndex = 0;
 
-        // and update the current log
-        log.dealerIndex = this.dealerIndex;
-        log.handNumber = this.handNumber;
-        log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
-        log.startingScores = this.players.map((player) => player.score);
+        if (log !== null) {
+            // and update the current log
+            log.dealerIndex = this.dealerIndex;
+            log.handNumber = this.handNumber;
+            log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
+            log.startingScores = this.players.map((player) => player.score);
+        }
     }
 
-    resetTrick(log: GameLog): void {
+    resetTrick(log: GameLog | null): void {
         const winnerPlayer = this.trickWinnerPlayer();
         const winnerPlayerIndex = winnerPlayer.positionIndex;
         this.currentPlayerIndex = winnerPlayerIndex;
         const trickValue = this.updateScores(winnerPlayerIndex);
-        log.captureTrick(
-            trickValue,
-            this.trickInProgress,
-            winnerPlayer.positionIndex,
-            this.scoresAndCategories.map(score_cat => score_cat.name),
-        );
+
+        if (log !== null) {
+            log.captureTrick(
+                trickValue,
+                this.trickInProgress,
+                winnerPlayer.positionIndex,
+                this.scoresAndCategories.map(score_cat => score_cat.name),
+            );
+        }
 
         if (this.gameIsFinished) {
             this.currentState = "game_complete";
