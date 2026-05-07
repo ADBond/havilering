@@ -14,15 +14,37 @@ export class ISMCTSNode {
         private parent: ISMCTSNode | null = null,
     ) {}
 
-    private untriedNodes(legalMoves: number[]): ISMCTSNode[] {
-        const untriedNodes = legalMoves.filter(
+    private legalChildren(legalMoves: number[]): ISMCTSNode[] {
+        return legalMoves.filter(
             (move) => `${move}` in this.children
         ).map(
             (move) => this.children[`${move}`]
-        ).filter(
+        );
+    }
+
+    private untriedNodes(legalMoves: number[]): ISMCTSNode[] {
+        const untriedNodes = this.legalChildren(legalMoves).filter(
             node => node.visits === 0
         );
         return untriedNodes;
+    }
+
+    private ucb(c: number = 0.7): number {
+        if (this.visits === 0) {
+            return Infinity;
+        }
+        const exploitation = this.score / this.visits;
+        const exploration = c * Math.sqrt(Math.log(this.availability) / this.visits);
+        return exploitation + exploration;
+    }
+
+    public bestChildByUCB(legalMoves: number[]) {
+        const legalChildren = this.legalChildren(legalMoves);
+        return Math.max(
+            ...legalChildren.map(
+                childNode => childNode.ucb()
+            )
+        );
     }
 
     public ensureChildrenExist(playerIndex: number, legalMoves: number[]) {
