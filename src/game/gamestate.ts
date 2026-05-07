@@ -52,6 +52,12 @@ export class GameState {
         this.suits = rotArr(getSuits(this.seasonalSuitShort));
     }
 
+    public clone(): GameState {
+        // make a (deep) copy - at least of the things we care about
+        // TODO
+        return this;
+    }
+
     public async increment(log: GameLog | null = null) {
         const state = this.currentState;
         // console.log(`Incrementing state - currently: ${state}`);

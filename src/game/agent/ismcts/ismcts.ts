@@ -69,7 +69,7 @@ export class ISMCTSNode {
 }
 
 function determiniseNaive(state: GameState, agent: ComputerAgent): GameState {
-    const newState = structuredClone(state);
+    const newState = state.clone();
     const unknownCards = state.pack.filter(
         card => 
             (!state.currentPlayerHand.some(handCard => Card.cardEquals(card, handCard))) &&
