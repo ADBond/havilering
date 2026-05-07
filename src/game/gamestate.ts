@@ -19,6 +19,7 @@ export class GameState {
     public players: Player[] = [];
     public trickIndex: number;
     public trickInProgress: [Card, Player][] = [];
+    public playedCards: Card[] = []
 
     public handNumber: number = 0;
     public currentState: state = 'game_initialise';
@@ -351,6 +352,7 @@ export class GameState {
         }
         const [playedCard] = hand.splice(index, 1);
         this.trickInProgress.push([playedCard, player]);
+        this.playedCards.push(playedCard);
 
         if (this.trickInProgress.length === this.numPlayers) {
             this.currentState = "trick_complete";
@@ -385,6 +387,7 @@ export class GameState {
         this.currentPlayerIndex = this.getNextPlayerIndex(this.dealerIndex);
         this.handNumber++;
         this.trickIndex = 0;
+        this.playedCards = [];
 
         if (log !== null) {
             // and update the current log

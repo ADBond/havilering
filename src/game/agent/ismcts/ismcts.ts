@@ -1,4 +1,4 @@
-import { Card } from "../../card";
+import { Card, shuffle } from "../../card";
 import { GameState } from "../../gamestate";
 import { ComputerAgent } from "../agent";
 import { randomArrayElement } from "../random";
@@ -68,8 +68,33 @@ export class ISMCTSNode {
     }
 }
 
+function determiniseNaive(state: GameState, agent: ComputerAgent): GameState {
+    const newState = state;
+    const unknownCards = state.pack.filter(
+        card => 
+            (!state.currentPlayerHand.some(handCard => Card.cardEquals(card, handCard))) &&
+            (!state.playedCards.some(playedCard => Card.cardEquals(card, playedCard)))
+    )
+    shuffle(unknownCards);
+    for (let playerIndex = 0; playerIndex < state.numPlayers; playerIndex++) {
+        const card = unknownCards.pop();
+        const player = newState.players[playerIndex];
+        if (player.name === state.currentPlayer.name) {
+            continue;
+        }
+        const cardsLeft = player.hand.length;
+        player.hand = [];
+        player.agent = agent;
+        for (let cardNum = 0; cardNum < cardsLeft; cardNum++) {
+            if (card) newState.giveCardToPlayer(playerIndex, card);
+        }
+    }
+    return newState;
+}
+
+
 function determinise(state: GameState, agent: ComputerAgent): GameState {
-    return state;  // TODO
+    return determiniseNaive(state, agent);
 }
 
 export function ismcts(
