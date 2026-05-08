@@ -3,9 +3,14 @@ import { Player, PlayerName, playerNameArr } from "./player";
 import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
 import { GameLog } from "./log";
+import { Game } from "./game";
 
 export type GameConfig = {
     targetScore: number,
+}
+
+function copyConfig(config: GameConfig): GameConfig {
+    return {targetScore: config.targetScore};
 }
 
 export type state = 'game_initialise' | 'play_card' | 'trick_complete' | 'hand_complete' | 'new_hand' | 'game_complete';
@@ -54,8 +59,35 @@ export class GameState {
 
     public clone(): GameState {
         // make a (deep) copy - at least of the things we care about
-        // TODO
-        return this;
+        const newConfig = copyConfig(this.config);
+        const playerNames = [...this.playerNames];
+        const newState = new GameState(playerNames, newConfig, this.seasonalSuitShort);
+
+        // copy remaining state
+        newState.dealerIndex = this.dealerIndex;
+        newState.currentPlayerIndex = this.currentPlayerIndex;
+        newState.leaderIndex = this.leaderIndex;
+        newState.pack = [...this.pack];
+
+        newState.players = this.players.map(player => player.clone());
+        newState.trickIndex = this.trickIndex;
+        // TODO: does it matter that these players are different to the ones in player array?
+        newState.trickInProgress = this.trickInProgress.map(
+            ([card, player]) => [card, player.clone()]
+        );
+        newState.playedCards = [...this.playedCards];
+    
+        newState.handNumber = this.handNumber;
+        newState.currentState = this.currentState;
+
+        newState.previousTrick = this.previousTrick.map(
+            ([card, player]) => [card, player.clone()]
+        );
+        newState.scoresAndCategories = [...this.scoresAndCategories];
+        newState.seasonalSuit = this.seasonalSuit;
+        newState.suits = [...this.suits];
+
+        return newState;
     }
 
     public async increment(log: GameLog | null = null) {
