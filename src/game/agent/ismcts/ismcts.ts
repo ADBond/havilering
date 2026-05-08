@@ -77,7 +77,6 @@ function determiniseNaive(state: GameState, agent: ComputerAgent): GameState {
     )
     shuffle(unknownCards);
     for (let playerIndex = 0; playerIndex < state.numPlayers; playerIndex++) {
-        const card = unknownCards.pop();
         const player = newState.players[playerIndex];
         player.agent = agent;
         if (player.name === state.currentPlayer.name) {
@@ -86,6 +85,7 @@ function determiniseNaive(state: GameState, agent: ComputerAgent): GameState {
         const cardsLeft = player.hand.length;
         player.hand = [];
         for (let cardNum = 0; cardNum < cardsLeft; cardNum++) {
+            const card = unknownCards.pop();
             if (card) newState.giveCardToPlayer(playerIndex, card);
         }
     }
@@ -202,6 +202,6 @@ export async function ismcts(
 
 function zeroSum(arr: number[]): number[] {
     return arr.map(
-        (idx, num) => num - arr[(idx + 1) % 2]
+        (val, idx) => val - arr[(idx + 1) % arr.length]
     );
 }

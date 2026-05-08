@@ -17,7 +17,7 @@ export function agentLookup(name: AgentName): Agent {
     } else if (name === 'random') {
         return randomAgent;
     } else if (name === 'ismcts') {
-        return ismctsAgent(500, randomAgent);
+        return ismctsAgent(1000, randomAgent);
     }
     return nnAgent(name);
 }
