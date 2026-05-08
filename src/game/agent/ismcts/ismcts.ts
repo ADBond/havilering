@@ -97,19 +97,20 @@ function determinise(state: GameState, agent: ComputerAgent): GameState {
     return determiniseNaive(state, agent);
 }
 
-export function ismcts(
+export async function ismcts(
     rootState: GameState,
     rolloutAgent: ComputerAgent,
     iterations: number = 10,
     c: number = 15,
     rolloutDiscount: number = 0.8,
-): [number, ISMCTSNode] {
+): Promise<[number, ISMCTSNode]> {
     const initialPlayerIndex = rootState.currentPlayerIndex;
     const initialScores = zeroSum(rootState.scores);
     const rootNode = new ISMCTSNode(initialPlayerIndex);
     let maxDepth = 0;
     let depth;
     for (let i = 0; i < iterations; i++) {
+        console.log(`ISMCTS iteration ${i}`);
         let state = determinise(rootState, rolloutAgent);
         let node = rootNode;
         let treeRewards = [0.0, 0.0, 0.0, 0.0];
@@ -126,9 +127,11 @@ export function ismcts(
             let justExpanded = false;
             let untriedNodes = node.untriedNodes(legalMoves);
             if (untriedNodes.length > 0) {
+                console.log("Trying a new node");
                 node = randomArrayElement(untriedNodes);
                 justExpanded = true;
             } else {
+                console.log("Picking something good");
                 // tried everything at least once - use UCB to decide where to go
                 node = node.bestChildByUCB(legalMoves, c);
             }
@@ -136,7 +139,7 @@ export function ismcts(
             // check if we can finish a trick and allocate rewards
             while (!["play_card", "hand_complete"].includes(state.currentState)) {
                 let initialState = state.currentState;
-                state.increment();
+                await state.increment();
                 if (initialState === "trick_complete") {
                     let trick = state.prevTrickScores;
                     for (let j = 0; j < trick.length; j++) {
@@ -147,41 +150,41 @@ export function ismcts(
             if (justExpanded) {
                 break;
             }
-            let rolloutRewards = [0.0, 0.0, 0.0, 0.0];
-
-            while (state.currentState !== "hand_complete") {  // false positive
-                let initialState = state.currentState;
-                state.increment();
-                if (initialState === "trick_complete") {
-                    let trick = state.prevTrickScores;
-                    for (let j = 0; j < trick.length; j++) {
-                        rolloutRewards[j] += trick[j];
-                    }
-                }
-            }
-            const treeZeroSum = zeroSum(treeRewards);
-            const rolloutZeroSum = zeroSum(rolloutRewards);
-
-            let result = [0.0, 0.0, 0.0, 0.0];
-            for (let j = 0; j < result.length; j++) {
-                result[j] = treeZeroSum[j] + rolloutDiscount * rolloutZeroSum[j] - initialScores[j];
-            }
-            depth = 0;
-            while (true) {
-                depth += 1;
-                node.visits += 1;
-                if (node.move !== -1) {
-                    node.score += result[node.playerIndex];
-                }
-                if (node.parent === null) {
-                    break;
-                }
-                node = node.parent;
-            }
-            maxDepth = Math.max(depth, maxDepth);
         }
-        console.log(`ISMCTS complete, ${iterations} iterations, maximum tree depth ${maxDepth}`);
+        let rolloutRewards = [0.0, 0.0, 0.0, 0.0];
+
+        while (state.currentState !== "hand_complete") {  // false positive
+            let initialState = state.currentState;
+            await state.increment();
+            if (initialState === "trick_complete") {
+                let trick = state.prevTrickScores;
+                for (let j = 0; j < trick.length; j++) {
+                    rolloutRewards[j] += trick[j];
+                }
+            }
+        }
+        const treeZeroSum = zeroSum(treeRewards);
+        const rolloutZeroSum = zeroSum(rolloutRewards);
+
+        let result = [0.0, 0.0, 0.0, 0.0];
+        for (let j = 0; j < result.length; j++) {
+            result[j] = treeZeroSum[j] + rolloutDiscount * rolloutZeroSum[j] - initialScores[j];
+        }
+        depth = 0;
+        while (true) {
+            depth += 1;
+            node.visits += 1;
+            if (node.move !== -1) {
+                node.score += result[node.playerIndex];
+            }
+            if (node.parent === null) {
+                break;
+            }
+            node = node.parent;
+        }
+        maxDepth = Math.max(depth, maxDepth);
     }
+    console.log(`ISMCTS complete, ${iterations} iterations, maximum tree depth ${maxDepth}`);
     const highestVisits = Math.max(
         ...Object.values(rootNode.children).map(
             node => node.visits
