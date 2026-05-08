@@ -3,9 +3,14 @@ import { Player, PlayerName, playerNameArr } from "./player";
 import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
 import { GameLog } from "./log";
+import { Game } from "./game";
 
 export type GameConfig = {
     targetScore: number,
+}
+
+function copyConfig(config: GameConfig): GameConfig {
+    return {targetScore: config.targetScore};
 }
 
 export type state = 'game_initialise' | 'play_card' | 'trick_complete' | 'hand_complete' | 'new_hand' | 'game_complete';
@@ -19,6 +24,7 @@ export class GameState {
     public players: Player[] = [];
     public trickIndex: number;
     public trickInProgress: [Card, Player][] = [];
+    public playedCards: Card[] = []
 
     public handNumber: number = 0;
     public currentState: state = 'game_initialise';
@@ -51,7 +57,40 @@ export class GameState {
         this.suits = rotArr(getSuits(this.seasonalSuitShort));
     }
 
-    public async increment(log: GameLog) {
+    public clone(): GameState {
+        // make a (deep) copy - at least of the things we care about
+        const newConfig = copyConfig(this.config);
+        const playerNames = [...this.playerNames];
+        const newState = new GameState(playerNames, newConfig, this.seasonalSuitShort);
+
+        // copy remaining state
+        newState.dealerIndex = this.dealerIndex;
+        newState.currentPlayerIndex = this.currentPlayerIndex;
+        newState.leaderIndex = this.leaderIndex;
+        newState.pack = [...this.pack];
+
+        newState.players = this.players.map(player => player.clone());
+        newState.trickIndex = this.trickIndex;
+        // TODO: does it matter that these players are different to the ones in player array?
+        newState.trickInProgress = this.trickInProgress.map(
+            ([card, player]) => [card, player.clone()]
+        );
+        newState.playedCards = [...this.playedCards];
+    
+        newState.handNumber = this.handNumber;
+        newState.currentState = this.currentState;
+
+        newState.previousTrick = this.previousTrick.map(
+            ([card, player]) => [card, player.clone()]
+        );
+        newState.scoresAndCategories = [...this.scoresAndCategories];
+        newState.seasonalSuit = this.seasonalSuit;
+        newState.suits = [...this.suits];
+
+        return newState;
+    }
+
+    public async increment(log: GameLog | null = null) {
         const state = this.currentState;
         // console.log(`Incrementing state - currently: ${state}`);
         switch (state) {
@@ -67,12 +106,16 @@ export class GameState {
             case 'hand_complete':
                 this.dealerIndex = this.getNextPlayerIndex(this.dealerIndex);
 
-                this.completeLog(log);
+                if (log !== null) {
+                    this.completeLog(log);
+                }
                 // initialise as separate state - keeps from doing too much at once
                 this.currentState = 'game_initialise';
                 break;
             case 'game_complete':
-                this.completeLog(log);
+                if (log !== null) {
+                    this.completeLog(log);
+                }
                 break;
             default:
             // error!
@@ -123,6 +166,10 @@ export class GameState {
         return this.players.filter(
             (player) => player.name === name
         )[0];
+    }
+
+    get prevTrickScores(): number[] {
+        return this.players.map(player => player.previousScore);
     }
 
     get scores(): number[] {
@@ -286,6 +333,15 @@ export class GameState {
         );
     }
 
+    public moveFromIndex(cardToPlayIndex: number): number {
+        const cardToPlay = Card.cardFromIndex(cardToPlayIndex, this.pack)
+
+        if (!this.playCard(cardToPlay)) {
+            console.log("Error playing card");
+        }
+        return cardToPlayIndex;
+    }
+
     private async computerMove(): Promise<number> {
         const agent = this.currentPlayer.agent;
         if (agent === 'human') {
@@ -301,12 +357,7 @@ export class GameState {
 
         const currentLegalMoves = this.legalMoveIndices;
         const cardToPlayIndex = await agent.chooseMove(this, currentLegalMoves);
-        const cardToPlay = Card.cardFromIndex(cardToPlayIndex, this.pack)
-
-        if (!this.playCard(cardToPlay)) {
-            console.log("Error playing card");
-        }
-        return cardToPlayIndex;
+        return this.moveFromIndex(cardToPlayIndex);
     }
 
     giveCardToPlayer(playerIndex: number, card: Card) {
@@ -339,6 +390,7 @@ export class GameState {
         }
         const [playedCard] = hand.splice(index, 1);
         this.trickInProgress.push([playedCard, player]);
+        this.playedCards.push(playedCard);
 
         if (this.trickInProgress.length === this.numPlayers) {
             this.currentState = "trick_complete";
@@ -350,7 +402,7 @@ export class GameState {
     }
 
     // TODO: seed?
-    dealCards(log: GameLog): void {
+    dealCards(log: GameLog | null): void {
         const pack = getFullPack(this.seasonalSuitShort);
         shuffle(pack);
         for (let i = 0; i < 13; i++) {
@@ -373,25 +425,31 @@ export class GameState {
         this.currentPlayerIndex = this.getNextPlayerIndex(this.dealerIndex);
         this.handNumber++;
         this.trickIndex = 0;
+        this.playedCards = [];
 
-        // and update the current log
-        log.dealerIndex = this.dealerIndex;
-        log.handNumber = this.handNumber;
-        log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
-        log.startingScores = this.players.map((player) => player.score);
+        if (log !== null) {
+            // and update the current log
+            log.dealerIndex = this.dealerIndex;
+            log.handNumber = this.handNumber;
+            log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
+            log.startingScores = this.players.map((player) => player.score);
+        }
     }
 
-    resetTrick(log: GameLog): void {
+    resetTrick(log: GameLog | null): void {
         const winnerPlayer = this.trickWinnerPlayer();
         const winnerPlayerIndex = winnerPlayer.positionIndex;
         this.currentPlayerIndex = winnerPlayerIndex;
         const trickValue = this.updateScores(winnerPlayerIndex);
-        log.captureTrick(
-            trickValue,
-            this.trickInProgress,
-            winnerPlayer.positionIndex,
-            this.scoresAndCategories.map(score_cat => score_cat.name),
-        );
+
+        if (log !== null) {
+            log.captureTrick(
+                trickValue,
+                this.trickInProgress,
+                winnerPlayer.positionIndex,
+                this.scoresAndCategories.map(score_cat => score_cat.name),
+            );
+        }
 
         if (this.gameIsFinished) {
             this.currentState = "game_complete";
