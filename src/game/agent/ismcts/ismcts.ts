@@ -104,6 +104,7 @@ export async function ismcts(
     c: number = 15,
     rolloutDiscount: number = 0.8,
 ): Promise<[number, ISMCTSNode]> {
+    // console.log(`ISMCTS called ${Math.random()}`);
     const initialPlayerIndex = rootState.currentPlayerIndex;
     const initialScores = zeroSum(rootState.scores);
     const rootNode = new ISMCTSNode(initialPlayerIndex);
@@ -115,7 +116,7 @@ export async function ismcts(
         let node = rootNode;
         let treeRewards = [0.0, 0.0, 0.0, 0.0];
         // walk down tree until we get a node to expand
-        while (state.currentState !== "hand_complete") {
+        while (!["hand_complete", "game_complete"].includes(state.currentState)) {
             let legalMoves = state.legalMoveIndices;
             let currentPlayerIndex = state.currentPlayerIndex;
             node.ensureChildrenExist(currentPlayerIndex, legalMoves);
@@ -137,7 +138,7 @@ export async function ismcts(
             }
             state.moveFromIndex(node.move);
             // check if we can finish a trick and allocate rewards
-            while (!["play_card", "hand_complete"].includes(state.currentState)) {
+            while (!["play_card", "hand_complete", "game_complete"].includes(state.currentState)) {
                 let initialState = state.currentState;
                 await state.increment();
                 if (initialState === "trick_complete") {
@@ -153,8 +154,8 @@ export async function ismcts(
         }
         let rolloutRewards = [0.0, 0.0, 0.0, 0.0];
 
-        while (state.currentState !== "hand_complete") {  // false positive
-            // console.log(`Rollout for ${i}...`);
+        while (!["hand_complete", "game_complete"].includes(state.currentState)) {  // false positive
+            // console.log(`Rollout for ${i}... (${state.currentState}, hand is ${state.handNumber})`);
             let initialState = state.currentState;
             await state.increment();
             if (initialState === "trick_complete") {
@@ -182,6 +183,7 @@ export async function ismcts(
                 break;
             }
             node = node.parent;
+            // console.log(`Depth: ${depth}`);
         }
         maxDepth = Math.max(depth, maxDepth);
         // console.log(`Iteration ${i} complete`);
