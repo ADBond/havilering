@@ -59,7 +59,7 @@ export async function renderState(state: GameStateForUI) {
   // and current status
   document.getElementById('hand-number')!.innerText = `(hand #${state.handNumber}, trick #${state.trickNumber})`;
 
-  console.log(state.suits);
+  // console.log(state.suits);
   // TODO: rename from trumps for clarity
   const trumpsEl = document.getElementById('trump-holder')!;
   trumpsEl.innerHTML = '';
