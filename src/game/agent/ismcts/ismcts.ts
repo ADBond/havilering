@@ -30,7 +30,7 @@ export class ISMCTSNode {
         return untriedNodes;
     }
 
-    private ucb(c: number = 0.7): number {
+    private ucb(c: number): number {
         if (this.visits === 0) {
             return Infinity;
         }
@@ -39,15 +39,15 @@ export class ISMCTSNode {
         return exploitation + exploration;
     }
 
-    public bestChildByUCB(legalMoves: number[]): ISMCTSNode {
+    public bestChildByUCB(legalMoves: number[], c: number): ISMCTSNode {
         const legalChildren = this.legalChildren(legalMoves);
         const ucbs = legalChildren.map(
-            childNode => childNode.ucb()
+            childNode => childNode.ucb(c)
         );
         const topUCB = Math.max(
             ...ucbs
         );
-        return legalChildren.filter(childNode => childNode.ucb() === topUCB)[0];
+        return legalChildren.filter(childNode => childNode.ucb(c) === topUCB)[0];
     }
 
     public ensureChildrenExist(playerIndex: number, legalMoves: number[]) {
@@ -107,6 +107,8 @@ export function ismcts(
     const initialPlayerIndex = rootState.currentPlayerIndex;
     const initialScores = zeroSum(rootState.scores);
     const rootNode = new ISMCTSNode(initialPlayerIndex);
+    let maxDepth = 0;
+    let depth;
     for (let i = 0; i < iterations; i++) {
         let state = determinise(rootState, rolloutAgent);
         let node = rootNode;
@@ -128,7 +130,7 @@ export function ismcts(
                 justExpanded = true;
             } else {
                 // tried everything at least once - use UCB to decide where to go
-                node = node.bestChildByUCB(legalMoves);
+                node = node.bestChildByUCB(legalMoves, c);
             }
             state.moveFromIndex(node.move);
             // check if we can finish a trick and allocate rewards
@@ -164,7 +166,9 @@ export function ismcts(
             for (let j = 0; j < result.length; j++) {
                 result[j] = treeZeroSum[j] + rolloutDiscount * rolloutZeroSum[j] - initialScores[j];
             }
+            depth = 0;
             while (true) {
+                depth += 1;
                 node.visits += 1;
                 if (node.move !== -1) {
                     node.score += result[node.playerIndex];
@@ -174,7 +178,9 @@ export function ismcts(
                 }
                 node = node.parent;
             }
+            maxDepth = Math.max(depth, maxDepth);
         }
+        console.log(`ISMCTS complete, ${iterations} iterations, maximum tree depth ${maxDepth}`);
     }
     const highestVisits = Math.max(
         ...Object.values(rootNode.children).map(
