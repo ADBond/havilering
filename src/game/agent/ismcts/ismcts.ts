@@ -79,12 +79,12 @@ function determiniseNaive(state: GameState, agent: ComputerAgent): GameState {
     for (let playerIndex = 0; playerIndex < state.numPlayers; playerIndex++) {
         const card = unknownCards.pop();
         const player = newState.players[playerIndex];
+        player.agent = agent;
         if (player.name === state.currentPlayer.name) {
             continue;
         }
         const cardsLeft = player.hand.length;
         player.hand = [];
-        player.agent = agent;
         for (let cardNum = 0; cardNum < cardsLeft; cardNum++) {
             if (card) newState.giveCardToPlayer(playerIndex, card);
         }
@@ -110,7 +110,7 @@ export async function ismcts(
     let maxDepth = 0;
     let depth;
     for (let i = 0; i < iterations; i++) {
-        console.log(`ISMCTS iteration ${i}`);
+        // console.log(`ISMCTS iteration ${i}`);
         let state = determinise(rootState, rolloutAgent);
         let node = rootNode;
         let treeRewards = [0.0, 0.0, 0.0, 0.0];
@@ -127,11 +127,11 @@ export async function ismcts(
             let justExpanded = false;
             let untriedNodes = node.untriedNodes(legalMoves);
             if (untriedNodes.length > 0) {
-                console.log("Trying a new node");
+                // console.log("Trying a new node");
                 node = randomArrayElement(untriedNodes);
                 justExpanded = true;
             } else {
-                console.log("Picking something good");
+                // console.log("Picking something good");
                 // tried everything at least once - use UCB to decide where to go
                 node = node.bestChildByUCB(legalMoves, c);
             }
@@ -154,6 +154,7 @@ export async function ismcts(
         let rolloutRewards = [0.0, 0.0, 0.0, 0.0];
 
         while (state.currentState !== "hand_complete") {  // false positive
+            // console.log(`Rollout for ${i}...`);
             let initialState = state.currentState;
             await state.increment();
             if (initialState === "trick_complete") {
@@ -183,6 +184,7 @@ export async function ismcts(
             node = node.parent;
         }
         maxDepth = Math.max(depth, maxDepth);
+        // console.log(`Iteration ${i} complete`);
     }
     console.log(`ISMCTS complete, ${iterations} iterations, maximum tree depth ${maxDepth}`);
     const highestVisits = Math.max(
