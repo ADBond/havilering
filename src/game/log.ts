@@ -9,7 +9,7 @@ declare const __COMMIT_HASH__: string;
 export class GameLog {
     private hands: Card[][] = [];
 
-    private playerCount: number = 4;
+    private playerCount: number;
 
     public dealerIndex: number = -1;
     public handNumber: number = -1;
@@ -22,7 +22,7 @@ export class GameLog {
 
     public complete: boolean = false;
     private version: string = getCommitHash();
-    private logVersion: number = 1;
+    private logVersion: number = 2;
     private game: string = 'havilering';
 
     constructor(
@@ -30,7 +30,9 @@ export class GameLog {
         private config: GameConfig,
         private players: AgentName[],
         private seasonalSuit: string,
-    ) { }
+    ) {
+        this.playerCount = players.length;
+    }
 
     captureTrick(score: number, trick: [Card, Player][], winnerIndex: number, cats: string[]) {
         this.tricks.push(
