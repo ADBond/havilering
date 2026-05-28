@@ -42,6 +42,20 @@ function counter(str_arr: string[]): { [key: string]: number } {
     return counter;
 }
 
+function countSubsetsWithSums(countValues: number[], targets: number[]): Map<number, number> {
+    const maxTarget = Math.max(...targets);
+    const sumCounts = new Array<number>(maxTarget + 1).fill(0);
+    sumCounts[0] = 1;
+
+    for (const value of countValues) {
+        for (let total = maxTarget; total >= value; total--) {
+            sumCounts[total] += sumCounts[total - value];
+        }
+    }
+
+    return new Map(targets.map(target => [target, sumCounts[target]]));
+}
+
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
     // console.log("Comparing arrays");
     // console.log(arr1);
@@ -73,22 +87,8 @@ function valueSum(ranks: Rank[]): number {
 }
 
 export function fifteenCount(ranks: Rank[]): number { 
-    const possible_index_pairs = [
-        [0, 1],
-        [0, 2],
-        [0, 3],
-        [1, 2],
-        [1, 3],
-        [2, 3],
-        [0, 1, 2],
-        [0, 1, 3],
-        [0, 2, 3],
-        [1, 2, 3],
-        [0, 1, 2, 3],
-    ];
-    return possible_index_pairs.filter(
-        idx_set => valueSum(ranksAtIndices(ranks, idx_set)) === 15
-    ).length;
+    // only keeping this function for testing + temp compat
+    return countSubsetsWithSums(ranks.map(rank => rank.count_value), [15]).get(15)!;
 }
 
 function is4Run(ranks: Rank[]): boolean {
