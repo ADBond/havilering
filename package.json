@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "prepare:wasm": "mkdir -p public/wasm && cp node_modules/onnxruntime-web/dist/ort-wasm-*.wasm public/wasm/ && cp node_modules/onnxruntime-web/dist/ort-wasm-*.mjs public/wasm/",
