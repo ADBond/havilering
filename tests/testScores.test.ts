@@ -27,4 +27,21 @@ describe("fifteenCount", () => {
    
   });
 
+  it("simple 6-card counts", () => {
+    const ranksAndCounts: [string[], number][] = [
+        [["A", "2", "3", "4", "5", "Q"], 4],
+        [["2", "4", "6", "8", "T", "K"], 0],
+        [["5", "5", "5", "5", "T", "J"], 12],
+        [["6", "7", "7", "8", "9", "2"], 5],
+        [["4", "A", "J", "T", "7", "3"], 3],
+        [["7", "7", "7", "7", "A", "A"], 12],
+    ];
+    ranksAndCounts.forEach(
+        ([trickStrs, expected]) => {
+            let trick = makeRanks(trickStrs);
+            expect(fifteenCount(trick)).toBe(expected);
+        }
+    )
+  });
+
 });
