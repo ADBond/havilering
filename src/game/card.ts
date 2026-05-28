@@ -177,8 +177,16 @@ export function getSuitAsSeasonal(shortName: string): Suit {
     return new Suit(suitData.name, seasonal_suit_index, suitData.html);
 }
 
+export function getSuit(shortName: string, seasonal_suit_short: string = "D"): Suit {
+    return getSuits(seasonal_suit_short).filter(suitData => suitData.name[0] === shortName)[0];
+}
+
 export function getRank(shortName: string): Rank {
     return RANKS.filter(rank => rank.toStringShort() === shortName)[0];
+}
+
+export function makeRanks(shortNames: string[]): Rank[] {
+    return shortNames.map(getRank);
 }
 
 export function getFullPack(seasonal_suit_short: string): Card[] {
@@ -196,6 +204,18 @@ export function getFullPack(seasonal_suit_short: string): Card[] {
         }
     }
     return cards;
+}
+
+export function makeCard(cardStringShort: string, seasonal_suit_short: string = "D"): Card {
+    const rank = getRank(cardStringShort[0]);
+    const suit = getSuit(cardStringShort[1], seasonal_suit_short);
+    return getFullPack(seasonal_suit_short).filter(
+        (packCard) => Suit.suitEquals(packCard.suit, suit) && Rank.rankEquals(packCard.rank, rank)
+    )[0]
+}
+
+export function makeCards(cardStringsShort: string[], seasonal_suit_short: string = "D"): Card[] {
+    return cardStringsShort.map(str => makeCard(str, seasonal_suit_short));
 }
 
 // suit doesn't matter here

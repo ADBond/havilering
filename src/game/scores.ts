@@ -72,7 +72,7 @@ function valueSum(ranks: Rank[]): number {
     );
 }
 
-function fifteenCount(ranks: Rank[]): number { 
+export function fifteenCount(ranks: Rank[]): number { 
     const possible_index_pairs = [
         [0, 1],
         [0, 2],
