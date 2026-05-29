@@ -64,26 +64,27 @@ export function countRuns(ranks: Rank[], maxLength: number): Map<number, number>
         byValue.set(rank.trickTakingRank, bucket);
     }
 
-    const results = new Map<number, number>();
+    const pointedAt = new Set(ranks.map(rank => rank.ttRankAbove));
+    const runStarts = ranks.filter(rank => !pointedAt.has(rank.trickTakingRank));
 
-    let counts = new Map<Rank, number>(ranks.map(rank => [rank, 1]));
+    const lengths = [...Array(maxLength).keys()].map(i => i + 1);
+    const results = new Map<number, number>(lengths.map(l => [l, 0]));
 
-    // Length 1 runs - every rank is a run of length 1
-    results.set(1, ranks.length);
-
-    // for each new length, count how many we can get to of that length
-    // 
-    for (let step = 1; step < maxLength; step++) {
-        const next = new Map<Rank, number>();
-        for (const [rank, count] of counts) {
-            const successors = byValue.get(rank.ttRankAbove) ?? [];
+    // DFS from each start, tracking current run length
+    function dfs(rank: Rank, length: number) {
+        const successors = byValue.get(rank.ttRankAbove) ?? [];
+        if (successors.length === 0) {
+            // Maximal run ends at this point
+            results.set(length, (results.get(length) ?? 0) + 1);
+        } else {
             for (const successor of successors) {
-                next.set(successor, (next.get(successor) ?? 0) + count);
+                dfs(successor, length + 1);
             }
         }
-        counts = next;
+    }
 
-        results.set(step + 1, [...counts.values()].reduce((a, b) => a + b, 0));
+    for (const start of runStarts) {
+        dfs(start, 1);
     }
 
     return results;
