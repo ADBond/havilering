@@ -3,3 +3,6 @@ start-app:
 
 stop-app:
 	docker compose down -v
+
+test:
+	npm run test

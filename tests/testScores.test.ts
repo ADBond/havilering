@@ -86,6 +86,8 @@ describe("runs direct counts", () => {
             [["Q", "K", "A", "A", "A", "2"], 0],
             [["Q", "K", "K", "A", "A", "4"], 4],
             [["K", "K", "A", "A", "2", "2"], 8],
+            [["T", "J", "Q", "K", "A", "2"], 0],
+            [["4", "5", "5", "6", "6", "6"], 6],
         ]
         ranksAndCounts.forEach(
             ([ranks, expected3Runs]) => {
@@ -96,5 +98,64 @@ describe("runs direct counts", () => {
         );
     });
 
+    it("Maximal 4-runs", () => {
+        const ranksAndCounts: [string[], number][] = [
+            [["2", "3", "5", "9"], 0],
+            [["2", "3", "4", "9"], 0],
+            [["2", "3", "4", "5"], 1],
+            [["2", "3", "3", "4"], 0],
+            [["2", "3", "3", "3"], 0],
+            [["5", "6", "8", "9", "T", "A"], 0],
+            [["2", "3", "7", "8", "9", "T"], 1],
+            [["5", "6", "8", "9", "T", "J"], 1],
+            [["Q", "K", "A", "A", "A", "A"], 0],
+            [["Q", "K", "A", "A", "A", "5"], 0],
+            [["Q", "K", "A", "A", "A", "2"], 3],
+            [["Q", "K", "K", "A", "A", "4"], 0],
+            [["K", "K", "A", "A", "2", "2"], 0],
+            [["T", "J", "Q", "K", "A", "2"], 0],
+            [["T", "J", "Q", "Q", "K", "5"], 2],
+            [["T", "J", "Q", "Q", "K", "K"], 4],
+        ]
+        ranksAndCounts.forEach(
+            ([ranks, expected3Runs]) => {
+                const runLength = 4;
+                const counts = countRuns(makeRanks(ranks), runLength)
+                expect(counts.get(runLength)!).toBe(expected3Runs);
+            }
+        );
+    });
 
+    it("Maximal 5-runs", () => {
+        const ranksAndCounts: [string[], number][] = [
+            [["5", "6", "7", "8", "9", "A"], 1],
+            [["5", "6", "7", "8", "9", "T"], 0],
+            [["5", "6", "7", "8", "9", "9"], 2],
+            [["5", "6", "7", "8", "8", "9"], 2],
+        ]
+        ranksAndCounts.forEach(
+            ([ranks, expected3Runs]) => {
+                const runLength = 5;
+                const counts = countRuns(makeRanks(ranks), runLength)
+                expect(counts.get(runLength)!).toBe(expected3Runs);
+            }
+        );
+    });
+
+
+    it("Maximal 6-runs", () => {
+        const ranksAndCounts: [string[], number][] = [
+            [["5", "6", "7", "8", "9", "A"], 0],
+            [["5", "6", "7", "8", "9", "T"], 1],
+            [["5", "6", "7", "8", "9", "9"], 0],
+            [["5", "6", "7", "8", "8", "9"], 0],
+        ]
+        ranksAndCounts.forEach(
+            ([ranks, expected3Runs]) => {
+                const runLength = 6;
+                const counts = countRuns(makeRanks(ranks), runLength)
+                expect(counts.get(runLength)!).toBe(expected3Runs);
+            }
+        );
+    });
 });
