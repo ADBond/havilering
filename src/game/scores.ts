@@ -1,4 +1,4 @@
-import { Card, Rank, Suit } from "./card";
+import { Card, Rank, Suit, getSuits } from "./card";
 
 export class scoreCategory {
     constructor(public name: string, public points: number) { }
@@ -87,6 +87,25 @@ export function countRuns(ranks: Rank[], maxLength: number): Map<number, number>
         dfs(start, 1);
     }
 
+    return results;
+}
+
+export function countRuffles(cards: Card[], maxLength: number): Map<number, number> {
+    const lengths = [...Array(maxLength).keys()].map(i => i + 1);
+    const results = new Map<number, number>(lengths.map(l => [l, 0]));
+    getSuits().forEach(
+        (suit) => {
+            const suitRanks = cards.filter(
+                card => Suit.suitEquals(card.suit, suit)
+            ).map(
+                card => card.rank
+            );
+            const suitRuns = countRuns(suitRanks, maxLength);
+            for (const [length, count] of suitRuns.entries()) {
+                results.set(length, results.get(length) ?? 0 + count);
+            }
+        }
+    );
     return results;
 }
 
