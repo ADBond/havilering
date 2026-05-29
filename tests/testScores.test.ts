@@ -71,5 +71,30 @@ describe("runs direct counts", () => {
         );
     });
 
+    it("Maximal 3-runs", () => {
+        const ranksAndCounts: [string[], number][] = [
+            [["2", "3", "5", "9"], 0],
+            [["2", "3", "4", "9"], 1],
+            [["2", "3", "4", "5"], 0],  // part of a 4-run, so no
+            [["2", "3", "3", "4"], 2],
+            [["2", "3", "3", "3"], 0],
+            [["5", "6", "8", "9", "T", "A"], 1],
+            [["2", "3", "7", "8", "9", "T"], 0],
+            [["5", "6", "8", "9", "T", "J"], 0],
+            [["Q", "K", "A", "A", "A", "A"], 4],
+            [["Q", "K", "A", "A", "A", "5"], 3],
+            [["Q", "K", "A", "A", "A", "2"], 0],
+            [["Q", "K", "K", "A", "A", "4"], 4],
+            [["K", "K", "A", "A", "2", "2"], 8],
+        ]
+        ranksAndCounts.forEach(
+            ([ranks, expected3Runs]) => {
+                const runLength = 3;
+                const counts = countRuns(makeRanks(ranks), runLength)
+                expect(counts.get(runLength)!).toBe(expected3Runs);
+            }
+        );
+    });
+
 
 });
