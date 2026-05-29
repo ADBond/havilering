@@ -1,7 +1,7 @@
 import { Card, Rank, Suit } from "./card";
 
 export class scoreCategory {
-    constructor(public name: string, public points: number) {}
+    constructor(public name: string, public points: number) { }
 }
 
 export const categories = {
@@ -56,6 +56,39 @@ function countSubsetsWithSums(countValues: number[], targets: number[]): Map<num
     return new Map(targets.map(target => [target, sumCounts[target]]));
 }
 
+export function countRuns(ranks: Rank[], maxLength: number): Map<number, number> {
+    const byValue = new Map<number, Rank[]>();
+    for (const rank of ranks) {
+        const bucket = byValue.get(rank.trickTakingRank) ?? [];
+        bucket.push(rank);
+        byValue.set(rank.trickTakingRank, bucket);
+    }
+
+    const results = new Map<number, number>();
+
+    let counts = new Map<Rank, number>(ranks.map(rank => [rank, 1]));
+
+    // Length 1 runs - every rank is a run of length 1
+    results.set(1, ranks.length);
+
+    // for each new length, count how many we can get to of that length
+    // 
+    for (let step = 1; step < maxLength; step++) {
+        const next = new Map<Rank, number>();
+        for (const [rank, count] of counts) {
+            const successors = byValue.get(rank.ttRankAbove) ?? [];
+            for (const successor of successors) {
+                next.set(successor, (next.get(successor) ?? 0) + count);
+            }
+        }
+        counts = next;
+
+        results.set(step + 1, [...counts.values()].reduce((a, b) => a + b, 0));
+    }
+
+    return results;
+}
+
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
     // console.log("Comparing arrays");
     // console.log(arr1);
@@ -86,7 +119,7 @@ function valueSum(ranks: Rank[]): number {
     );
 }
 
-export function fifteenCount(ranks: Rank[]): number { 
+export function fifteenCount(ranks: Rank[]): number {
     // only keeping this function for testing + temp compat
     return countSubsetsWithSums(ranks.map(rank => rank.count_value), [15]).get(15)!;
 }
@@ -122,7 +155,7 @@ function is4Run(ranks: Rank[]): boolean {
 function has3Run(ranks: Rank[]): boolean {
     // yes/no - is there any set of 3-run in these ranks?
     const ranksSet = new Set(
-            ranks.map(
+        ranks.map(
             (rank) => rank.trickTakingRank
         )
     );
