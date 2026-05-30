@@ -102,7 +102,7 @@ export function countRuffles(cards: Card[], maxLength: number): Map<number, numb
             );
             const suitRuns = countRuns(suitRanks, maxLength);
             for (const [length, count] of suitRuns.entries()) {
-                results.set(length, results.get(length) ?? 0 + count);
+                results.set(length, (results.get(length) ?? 0) + count);
             }
         }
     );
@@ -252,28 +252,23 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
         score_categories.push(categories['pair']);
     }
 
-    if (is4Run(trick_ranks)) {
-        if (arraysEqual(suit_counts, [4])) {
-            score_categories.push(categories['run_flush_4']);
-        } else {
-            score_categories.push(categories['run_4']);
-        }
-    } else {
-        // TODO 3 runs
-        if (hasRunning3Flush(trick)) {
-            score_categories.push(categories['run_flush_3']);
-            // a pair means we also have a (n unsuited) run of 3 - run + running flush
-            if (hasPair(score_categories)) {
-                score_categories.push(categories['run_3']);
-            }
-        } else if (has3Run(trick_ranks)) {
-            score_categories.push(categories['run_3']);
-            // a pair means we also have an unsuited run of 3 - double run
-            if (hasPair(score_categories)) {
-                score_categories.push(categories['run_3']);
-            }
-        }
+    const naiveRunCounts = countRuns(trick_ranks, trick_ranks.length);
+    const ruffleCounts = countRuffles(trick, trick.length);
+    const runCounts = naiveRunCounts;
+    for (const [length, count] of naiveRunCounts.entries()) {
+        runCounts.set(length, count - (ruffleCounts.get(length) ?? 0));
     }
+
+    // just stupid way for now while i check
+    const run3s = runCounts.get(3) ?? 0;
+    const run4s = runCounts.get(4) ?? 0;
+    const ruffle3s = ruffleCounts.get(3) ?? 0;
+    const ruffle4s = ruffleCounts.get(4) ?? 0;
+
+    score_categories.push(...Array(run3s).fill(categories['run_3']));
+    score_categories.push(...Array(run4s).fill(categories['run_4']));
+    score_categories.push(...Array(ruffle3s).fill(categories['run_flush_3']));
+    score_categories.push(...Array(ruffle4s).fill(categories['run_flush_4']));
 
     // problems (but code changed since - worth testing):
     // 8C 6D 9D TC only scores as 15 (no run3)
