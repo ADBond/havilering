@@ -1,4 +1,4 @@
-import { Card, Rank, Suit, getSuits } from "./card";
+import { Card, Rank, Suit } from "./card";
 
 export class scoreCategory {
     constructor(public name: string, public points: number) { }
@@ -115,12 +115,6 @@ function arraysEqual(arr1: any[], arr2: any[]): boolean {
     return true;
 }
 
-function ranksAtIndices(ranks: Rank[], indices: number[]): Rank[] {
-    return indices.map(
-        idx => ranks[idx]
-    );
-}
-
 function valueSum(ranks: Rank[]): number {
     return ranks.map(
         (rank) => rank.count_value
@@ -132,94 +126,6 @@ function valueSum(ranks: Rank[]): number {
 export function fifteenCount(ranks: Rank[]): number {
     // only keeping this function for testing + temp compat
     return countSubsetsWithSums(ranks.map(rank => rank.count_value), [15]).get(15)!;
-}
-
-function is4Run(ranks: Rank[]): boolean {
-    const indices = ranks.map(
-        (rank) => rank.trickTakingRank
-    ).sort((a, b) => a - b);
-    // console.log(indices);
-    // TODO: check ranks.length === 4
-    if (
-        (indices[3] === indices[2] + 1) &&
-        (indices[2] === indices[1] + 1) &&
-        (indices[1] === indices[0] + 1)
-    ) {
-        return true;
-    }
-    // easier just to list special cases
-    // these are wrap-around runs
-    if (
-        // A 2 3 4
-        (arraysEqual(indices, [2, 3, 4, 14])) ||
-        // K A 2 3
-        (arraysEqual(indices, [2, 3, 13, 14])) ||
-        // Q K A 2
-        (arraysEqual(indices, [2, 12, 13, 14]))
-    ) {
-        return true;
-    }
-    return false;
-}
-
-function has3Run(ranks: Rank[]): boolean {
-    // yes/no - is there any set of 3-run in these ranks?
-    const ranksSet = new Set(
-        ranks.map(
-            (rank) => rank.trickTakingRank
-        )
-    );
-    // deduped set of ranks
-    const indices = [...ranksSet].sort((a, b) => a - b);
-    if (indices.length >= 3) {
-        // first 3 ranks form a run
-        if (
-            (indices[2] === indices[1] + 1) &&
-            (indices[1] === indices[0] + 1)
-        ) {
-            return true;
-        }
-        // once again we just list special cases - wraparounds
-        if (
-            // A 2 3
-            (indices.includes(2) && indices.includes(3) && indices.includes(14)) ||
-            // K A 2
-            (indices.includes(2) && indices.includes(13) && indices.includes(14))
-        ) {
-            return true;
-        }
-    }
-    // only remaining case is if we have 4 distinct ranks and the last 3 form a run
-    if (indices.length === 4) {
-        if (
-            (indices[3] === indices[2] + 1) &&
-            (indices[2] === indices[1] + 1)
-        ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function hasRunning3Flush(cards: Card[]): boolean {
-    const suits = cards.map(card => card.suit);
-    const suit_counts = counter(suits.map(suit => suit.name));
-    const longest_suit_length = Math.max(...Object.values(suit_counts));
-    // need at least 3 in a suit to have a running flush of 3
-    if (longest_suit_length < 3) {
-        return false;
-    }
-    const longest_suit_name = Object.entries(suit_counts).filter(
-        ([_suit_name, count]) => count === longest_suit_length
-    ).map(
-        ([suit_name, _count]) => suit_name
-    )[0];
-    const ranks_of_longest_suit = cards.filter(
-        card => card.suit.name === longest_suit_name
-    ).map(
-        card => card.rank
-    );
-    return has3Run(ranks_of_longest_suit);
 }
 
 export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
@@ -288,12 +194,3 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
 
     return score_categories;
 }
-
-// testing, sorry:
-
-// import { getRank } from "./card";
-
-// console.log("test case:")
-// const tcase = [getRank('K'), getRank('Q'), getRank('A'), getRank('2')];
-// console.log(tcase);
-// console.log(is4Run(tcase));
