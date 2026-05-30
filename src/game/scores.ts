@@ -56,57 +56,47 @@ function countSubsetsWithSums(countValues: number[], targets: number[]): Map<num
     return new Map(targets.map(target => [target, sumCounts[target]]));
 }
 
-export function countRuns(ranks: Rank[], maxLength: number): Map<number, number> {
-    const byValue = new Map<number, Rank[]>();
-    for (const rank of ranks) {
-        const bucket = byValue.get(rank.trickTakingRank) ?? [];
-        bucket.push(rank);
-        byValue.set(rank.trickTakingRank, bucket);
+export function countRunsAndRuffles(cards: Card[], maxLength: number): {
+    runs: Map<number, number>,
+    ruffles: Map<number, number>
+} {
+    const byValue = new Map<number, Card[]>();
+    for (const card of cards) {
+        const bucket = byValue.get(card.rank.trickTakingRank) ?? [];
+        bucket.push(card);
+        byValue.set(card.rank.trickTakingRank, bucket);
     }
 
-    const pointedAt = new Set(ranks.map(rank => rank.ttRankAbove));
-    const runStarts = ranks.filter(rank => !pointedAt.has(rank.trickTakingRank));
+    const pointedAt = new Set(cards.map(card => card.rank.ttRankAbove));
+    const runStarts = cards.filter(card => !pointedAt.has(card.rank.trickTakingRank));
 
     const lengths = [...Array(maxLength).keys()].map(i => i + 1);
-    const results = new Map<number, number>(lengths.map(l => [l, 0]));
+    const runs = new Map<number, number>(lengths.map(l => [l, 0]));
+    const ruffles = new Map<number, number>(lengths.map(l => [l, 0]));
 
-    // DFS from each start, tracking current run length
-    function dfs(rank: Rank, length: number) {
-        const successors = byValue.get(rank.ttRankAbove) ?? [];
+    // DFS from each start, tracking current run length, and if it is suited
+    function dfs(card: Card, length: number, singleSuit: Suit | null) {
+        const updatedSuit = singleSuit !== null && Suit.suitEquals(singleSuit, card.suit)
+        ? singleSuit   // single-suit - potential ruffle
+        : null;        // mixed-suit - a run
+
+        const successors = byValue.get(card.rank.ttRankAbove) ?? [];
         if (successors.length === 0) {
-            // Maximal run ends at this point
-            results.set(length, (results.get(length) ?? 0) + 1);
+            const bucket = updatedSuit !== null ? ruffles : runs;
+            bucket.set(length, (bucket.get(length) ?? 0) + 1);
+
         } else {
             for (const successor of successors) {
-                dfs(successor, length + 1);
+                dfs(successor, length + 1, updatedSuit);
             }
         }
     }
 
     for (const start of runStarts) {
-        dfs(start, 1);
+        dfs(start, 1, start.suit);
     }
 
-    return results;
-}
-
-export function countRuffles(cards: Card[], maxLength: number): Map<number, number> {
-    const lengths = [...Array(maxLength).keys()].map(i => i + 1);
-    const results = new Map<number, number>(lengths.map(l => [l, 0]));
-    getSuits().forEach(
-        (suit) => {
-            const suitRanks = cards.filter(
-                card => Suit.suitEquals(card.suit, suit)
-            ).map(
-                card => card.rank
-            );
-            const suitRuns = countRuns(suitRanks, maxLength);
-            for (const [length, count] of suitRuns.entries()) {
-                results.set(length, (results.get(length) ?? 0) + count);
-            }
-        }
-    );
-    return results;
+    return { runs, ruffles };
 }
 
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
@@ -252,18 +242,13 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
         score_categories.push(categories['pair']);
     }
 
-    const naiveRunCounts = countRuns(trick_ranks, trick_ranks.length);
-    const ruffleCounts = countRuffles(trick, trick.length);
-    const runCounts = naiveRunCounts;
-    for (const [length, count] of naiveRunCounts.entries()) {
-        runCounts.set(length, count - (ruffleCounts.get(length) ?? 0));
-    }
+    const runAndRuffleCounts = countRunsAndRuffles(trick, trick.length);
 
     // just stupid way for now while i check
-    const run3s = runCounts.get(3) ?? 0;
-    const run4s = runCounts.get(4) ?? 0;
-    const ruffle3s = ruffleCounts.get(3) ?? 0;
-    const ruffle4s = ruffleCounts.get(4) ?? 0;
+    const run3s = runAndRuffleCounts["runs"].get(3) ?? 0;
+    const run4s = runAndRuffleCounts["runs"].get(4) ?? 0;
+    const ruffle3s = runAndRuffleCounts["ruffles"].get(3) ?? 0;
+    const ruffle4s = runAndRuffleCounts["ruffles"].get(4) ?? 0;
 
     score_categories.push(...Array(run3s).fill(categories['run_3']));
     score_categories.push(...Array(run4s).fill(categories['run_4']));
