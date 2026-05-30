@@ -24,7 +24,8 @@ export class GameState {
     public players: Player[] = [];
     public trickIndex: number;
     public trickInProgress: [Card, Player][] = [];
-    public playedCards: Card[] = []
+    public playedCards: Card[] = [];
+    public cachette: Card[] = [];
 
     public handNumber: number = 0;
     public currentState: state = 'game_initialise';
@@ -123,7 +124,11 @@ export class GameState {
     }
 
     get cardsPerHand(): number {
-        return 13;
+        if (this.numPlayers === 4) {
+            return 13;
+        }
+        // 6p
+        return 8;
     }
 
     get trickNumber(): number {
@@ -405,7 +410,7 @@ export class GameState {
     dealCards(log: GameLog | null): void {
         const pack = getFullPack(this.seasonalSuitShort);
         shuffle(pack);
-        for (let i = 0; i < 13; i++) {
+        for (let i = 0; i < this.cardsPerHand; i++) {
             // for (const player of this.state.players) {
             // TODO: loop this properly!
             for (let playerIndex = 0; playerIndex < this.numPlayers; playerIndex++) {
@@ -414,7 +419,8 @@ export class GameState {
             }
         }
 
-        // TODO now pack should be empty
+        // TODO now pack should be empty at 4p
+        this.cachette = [...pack];
         // console.log("Empty pack:");
         // console.log([...pack]);
         // console.log([...this.getPlayerHand(0)]);
