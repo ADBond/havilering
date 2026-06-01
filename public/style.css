@@ -21,24 +21,24 @@ body {
     border: black 1px;
 }
 
-.player-area.player {
+.player-area.player-4 {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.player-area.comp1 {
+.player-area.comp1-4 {
     top: 160px;
     left: 30px;
 }
 
-.player-area.comp2 {
+.player-area.comp2-4 {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.player-area.comp3 {
+.player-area.comp3-4 {
     top: 160px;
     right: 30px;
 }
@@ -124,24 +124,24 @@ body {
     transform-origin: center center;
 }
 
-#prev-comp1 {
+#prev-comp1-4 {
     top: 50px;
     left: 0;
 }
 
-#prev-comp2 {
+#prev-comp2-4 {
     top: 0;
     right: 0;
     left: 50%;
     transform: translateX(-50%) scale(0.75);
 }
 
-#prev-comp3 {
+#prev-comp3-4 {
     top: 50px;
     right: 0;
 }
 
-#prev-player {
+#prev-player-4 {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%) scale(0.75);

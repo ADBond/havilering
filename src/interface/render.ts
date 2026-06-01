@@ -6,6 +6,7 @@ import { onHumanPlay } from './api';
 
 export async function renderState(state: GameStateForUI) {
   // console.log(state);
+  const n_players = state.playerNameArr.length;
   const handEl = document.getElementById('player-hand')!;
   const playerHand = state.hands.player;
   playerHand.sort(
@@ -23,9 +24,17 @@ export async function renderState(state: GameStateForUI) {
     )
   });
 
+  const gameBoard = document.getElementById("game-board")!;
+
   state.playerNameArr.forEach(p => {
-    const playedEl = document.getElementById(`played-${p}`)!;
-    playedEl.innerHTML = '';
+    const areaEl = document.createElement("div");
+    const playedEl = document.createElement("div");
+    areaEl.classList.add("player-area");
+    areaEl.classList.add(`${p}-${n_players}`);
+    playedEl.id = `played-${p}-${n_players}`;
+    playedEl.classList.add("played");
+    areaEl.appendChild(playedEl);
+    gameBoard.appendChild(areaEl);
     if (p === state.dealer) {
       playedEl.classList.add('dealer');
     } else {
@@ -44,9 +53,12 @@ export async function renderState(state: GameStateForUI) {
     playedEl.appendChild(el);
   });
 
+  const prevElContainer = document.getElementById("prev-area")!;
   state.playerNameArr.forEach(p => {
-    const prevEl = document.getElementById(`prev-${p}`)!;
-    prevEl.innerHTML = '';
+    const prevEl = document.createElement("div");
+    prevEl.id = `prev-${p}-${n_players}`;
+    prevEl.classList.add("prev-slot");
+    prevElContainer.appendChild(prevEl);
     const card = state.previous[p as PlayerName];
     const el = createCardElement(card !== null ? card.toStringShort() : "");
     el.classList.add('played-card');
