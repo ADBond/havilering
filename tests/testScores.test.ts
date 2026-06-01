@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { makeRanks } from "../src/game/card";
-import { fifteenCount, countRuns } from "../src/game/scores";
+import { makeRanks, makeCards } from "../src/game/card";
+import { fifteenCount, countRunsAndRuffles } from "../src/game/scores";
 
 
 describe("fifteenCount", () => {
@@ -47,7 +47,7 @@ describe("fifteenCount", () => {
 });
 
 
-describe("runs direct counts", () => {
+describe("runs/ruffles direct counts", () => {
     it("check wraparound runs", () => {
         const wraparounds = [
             ["K", "A", "2"],
@@ -65,8 +65,9 @@ describe("runs direct counts", () => {
         wraparounds.forEach(
             (ranks) => {
                 const runLength = ranks.length;
-                const counts = countRuns(makeRanks(ranks),runLength)
-                expect(counts.get(runLength)!).toBe(1);
+                const counts = countRunsAndRuffles(makeCards(ranks.map(rank => `${rank}S`)), runLength);
+                expect(counts["ruffles"].get(runLength)!).toBe(1);
+                expect(counts["runs"].get(runLength)!).toBe(0);
             }
         );
     });
@@ -92,8 +93,9 @@ describe("runs direct counts", () => {
         ranksAndCounts.forEach(
             ([ranks, expected3Runs]) => {
                 const runLength = 3;
-                const counts = countRuns(makeRanks(ranks), runLength)
-                expect(counts.get(runLength)!).toBe(expected3Runs);
+                const counts = countRunsAndRuffles(makeCards(ranks.map(rank => `${rank}S`)), runLength);
+                expect(counts["ruffles"].get(runLength)!).toBe(expected3Runs);
+                expect(counts["runs"].get(runLength)!).toBe(0);
             }
         );
     });
@@ -118,10 +120,11 @@ describe("runs direct counts", () => {
             [["T", "J", "Q", "Q", "K", "K"], 4],
         ]
         ranksAndCounts.forEach(
-            ([ranks, expected3Runs]) => {
+            ([ranks, expected4Runs]) => {
                 const runLength = 4;
-                const counts = countRuns(makeRanks(ranks), runLength)
-                expect(counts.get(runLength)!).toBe(expected3Runs);
+                const counts = countRunsAndRuffles(makeCards(ranks.map(rank => `${rank}S`)), runLength);
+                expect(counts["ruffles"].get(runLength)!).toBe(expected4Runs);
+                expect(counts["runs"].get(runLength)!).toBe(0);
             }
         );
     });
@@ -134,10 +137,11 @@ describe("runs direct counts", () => {
             [["5", "6", "7", "8", "8", "9"], 2],
         ]
         ranksAndCounts.forEach(
-            ([ranks, expected3Runs]) => {
+            ([ranks, expected5Runs]) => {
                 const runLength = 5;
-                const counts = countRuns(makeRanks(ranks), runLength)
-                expect(counts.get(runLength)!).toBe(expected3Runs);
+                const counts = countRunsAndRuffles(makeCards(ranks.map(rank => `${rank}S`)), runLength);
+                expect(counts["ruffles"].get(runLength)!).toBe(expected5Runs);
+                expect(counts["runs"].get(runLength)!).toBe(0);
             }
         );
     });
@@ -151,10 +155,11 @@ describe("runs direct counts", () => {
             [["5", "6", "7", "8", "8", "9"], 0],
         ]
         ranksAndCounts.forEach(
-            ([ranks, expected3Runs]) => {
+            ([ranks, expected6Runs]) => {
                 const runLength = 6;
-                const counts = countRuns(makeRanks(ranks), runLength)
-                expect(counts.get(runLength)!).toBe(expected3Runs);
+                const counts = countRunsAndRuffles(makeCards(ranks.map(rank => `${rank}S`)), runLength);
+                expect(counts["ruffles"].get(runLength)!).toBe(expected6Runs);
+                expect(counts["runs"].get(runLength)!).toBe(0);
             }
         );
     });
