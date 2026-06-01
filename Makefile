@@ -5,4 +5,4 @@ stop-app:
 	docker compose down -v
 
 test:
-	docker compose run --build --entrypoint "npm run test" frontend
+	docker compose run --build --rm --entrypoint "npm run test" frontend
