@@ -10,9 +10,9 @@ export const categories = {
     31: new scoreCategory('31', 3),
     jack_havel: new scoreCategory('J. Havel', 3),
     jack_havel_dealer: new scoreCategory('J. Havel (d)', 6),
-    pair: new scoreCategory('Pair', 2),
-    prial: new scoreCategory('Prial', 9),
-    double_prial: new scoreCategory('Morny', 12),
+    n_of_rank_2: new scoreCategory('Pair', 2),
+    n_of_rank_3: new scoreCategory('Prial', 9),
+    n_of_rank_4: new scoreCategory('Morny', 12),
     run_3: new scoreCategory('3-run', 3),
     run_4: new scoreCategory('4-run', 9),
     run_5: new scoreCategory('5-run', 9),
@@ -25,13 +25,6 @@ export const categories = {
 }
 
 export type categoryName = keyof typeof categories;
-
-function hasPair(score_categories: scoreCategory[]): boolean {
-    // TODO: a bit brittle, as name is not typed beyond string
-    return score_categories.filter(
-        (category) => category.name === 'Pair'
-    ).length > 0;
-}
 
 function counter(str_arr: string[]): { [key: string]: number } {
     let counter: { [key: string]: number } = {};
@@ -103,30 +96,6 @@ export function countRunsAndRuffles(cards: Card[], maxLength: number): {
     return { runs, ruffles };
 }
 
-function arraysEqual(arr1: any[], arr2: any[]): boolean {
-    // console.log("Comparing arrays");
-    // console.log(arr1);
-    // console.log(arr2);
-    if (arr1.length !== arr2.length) {
-        return false;
-    }
-    for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i] !== arr2[i]) {
-            return false;
-        }
-    }
-    // console.log("same");
-    return true;
-}
-
-function valueSum(ranks: Rank[]): number {
-    return ranks.map(
-        (rank) => rank.count_value
-    ).reduce(
-        (val_l, val_r) => val_l + val_r
-    );
-}
-
 export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
@@ -137,14 +106,10 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     const suit_counts = Object.values(suit_counter).sort();
 
     // n-of-a-rank categories
-    if (arraysEqual(rank_counts, [4])) {
-        score_categories.push(categories['double_prial']);
-    } else if (arraysEqual(rank_counts, [1, 3])) {
-        score_categories.push(categories['prial']);
-    } else if (arraysEqual(rank_counts, [2, 2])) {
-        score_categories.push(categories['pair'], categories['pair']);
-    } else if (arraysEqual(rank_counts, [1, 1, 2])) {
-        score_categories.push(categories['pair']);
+    const rankMatchSizes: (2 | 3 | 4)[] = [2, 3, 4];
+    for (const nOfARank of rankMatchSizes) {
+        const numberOfCombos = rank_counts.filter(count => count === nOfARank);
+        score_categories.push(...Array(numberOfCombos.length).fill(categories[`n_of_rank_${nOfARank}`]));
     }
 
     const runAndRuffleCounts = countRunsAndRuffles(trick, trick.length);
