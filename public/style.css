@@ -44,6 +44,38 @@ body {
 }
 
 
+.player-area.player-6 {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-area.comp1-6 {
+    top: 230px;
+    left: 30px;
+}
+
+.player-area.comp2-6 {
+    top: 70px;
+    left: 30px;
+}
+
+.player-area.comp3-6 {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-area.comp4-6 {
+    top: 70px;
+    right: 30px;
+}
+
+.player-area.comp5-6 {
+    top: 230px;
+    right: 30px;
+}
+
 .played,
 .previous {
     margin: 5px 0;
@@ -142,6 +174,39 @@ body {
 }
 
 #prev-player-4 {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0.75);
+}
+
+#prev-comp1-6 {
+    top: 100px;
+    left: 0;
+}
+
+#prev-comp2-6 {
+    top: 20px;
+    left: 0;
+}
+
+#prev-comp3-6 {
+    top: 0;
+    right: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0.75);
+}
+
+#prev-comp4-6 {
+    top: 20px;
+    right: 0;
+}
+
+#prev-comp5-6 {
+    top: 100px;
+    right: 0;
+}
+
+#prev-player-6 {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%) scale(0.75);

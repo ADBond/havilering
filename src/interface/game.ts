@@ -3,14 +3,14 @@ import { defaultConfig } from "../game/game";
 import { getSeasonalSuitShort } from "../utils/season";
 
 let game: Game;
-const opp = 'ismcts1000';
+const opp = 'random';
 
 export function newGame(): void {
     const dateNow = new Date();
     // dateNow.setDate(dateNow.getDate() - 1);
     const seasonalSuitShort = getSeasonalSuitShort(dateNow);
     game = new Game(
-        ['human', opp, opp, opp],
+        ['human', opp, opp, opp, opp, opp],
         defaultConfig,
         seasonalSuitShort,
     );
