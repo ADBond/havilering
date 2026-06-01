@@ -46,7 +46,7 @@ function counter(str_arr: string[]): { [key: string]: number } {
     return counter;
 }
 
-function countSubsetsWithSums(countValues: number[], targets: number[]): Map<number, number> {
+export function countSubsetsWithSums(countValues: number[], targets: number[]): Map<number, number> {
     const maxTarget = Math.max(...targets);
     const sumCounts = new Array<number>(maxTarget + 1).fill(0);
     sumCounts[0] = 1;
@@ -127,11 +127,6 @@ function valueSum(ranks: Rank[]): number {
     );
 }
 
-export function fifteenCount(ranks: Rank[]): number {
-    // only keeping this function for testing + temp compat
-    return countSubsetsWithSums(ranks.map(rank => rank.count_value), [15]).get(15)!;
-}
-
 export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
@@ -167,10 +162,11 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     // KC QC AC 2C scores as rf3 + r3 (not rf4)
 
     // count categories
-    if (valueSum(trick_ranks) === 31) {
+    const fifteensAndThirtyones = countSubsetsWithSums(trick_ranks.map(rank => rank.count_value), [15, 31]);
+    for (let i = 0; i < fifteensAndThirtyones.get(31)!; i++) {
         score_categories.push(categories['31']);
     }
-    for (let i = 0; i < fifteenCount(trick_ranks); i++) {
+    for (let i = 0; i < fifteensAndThirtyones.get(15)!; i++) {
         score_categories.push(categories['15']);
     }
     // Jack Havel

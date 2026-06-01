@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { makeRanks, makeCards } from "../src/game/card";
-import { fifteenCount, countRunsAndRuffles } from "../src/game/scores";
+import { Rank, makeRanks, makeCards } from "../src/game/card";
+import { countSubsetsWithSums, countRunsAndRuffles } from "../src/game/scores";
 
+function fifteenCount(ranks: Rank[]): number {
+    return countSubsetsWithSums(ranks.map(rank => rank.count_value), [15]).get(15)!;
+}
 
 describe("fifteenCount", () => {
     it("simple 4-card counts", () => {
