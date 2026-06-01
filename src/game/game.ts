@@ -40,7 +40,7 @@ export class Game {
     await this.state.increment(this.currentLog);
     if (this.currentLog.complete) {
       this.logs.push(this.currentLog);
-      sendGameLog(this.currentLog);
+      // sendGameLog(this.currentLog);
       this.currentLog = new GameLog(this.gameID, this.state.config, this.playerNames, this.state.seasonalSuitShort);
     }
   }
