@@ -179,7 +179,7 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
         }
     }
     // simple flush
-    if (arraysEqual(suit_counts, [4])) {
+    if (suit_counts.length === 1) {
         score_categories.push(categories['flush']);
     }
 
