@@ -1,7 +1,28 @@
-import { Card, Rank, Suit } from "./card";
+import { Card, Suit } from "./card";
 
+export type categoryName = (
+    'Flush' |
+    '15' |
+    '31' |
+    'J. Havel' |
+    'J. Havel (d)' |
+    'Pair' |
+    'Prial' |
+    'Morny' |
+    '3-run' |
+    '4-run' |
+    '5-run' |
+    '6-run' |
+    '3-ruffle' |
+    '4-ruffle' |
+    '5-ruffle' |
+    '6-ruffle' |
+    'Last'
+)
+
+// TODO: name & display-name should probably be distinct
 export class scoreCategory {
-    constructor(public name: string, public points_4p: number, public points_6p: number = 0) { }
+    constructor(public name: categoryName, public points_4p: number, public points_6p: number = 0) { }
 }
 
 export const categories = {
@@ -23,8 +44,6 @@ export const categories = {
     run_flush_6: new scoreCategory('6-ruffle', 10),
     final_trick: new scoreCategory('Last', 2),
 }
-
-export type categoryName = keyof typeof categories;
 
 function counter(str_arr: string[]): { [key: string]: number } {
     let counter: { [key: string]: number } = {};
@@ -121,10 +140,6 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
         score_categories.push(...Array(runs).fill(categories[`run_${runRuffleLength}`]));
         score_categories.push(...Array(ruffles).fill(categories[`run_flush_${runRuffleLength}`]));
     }
-
-    // problems (but code changed since - worth testing):
-    // 8C 6D 9D TC only scores as 15 (no run3)
-    // KC QC AC 2C scores as rf3 + r3 (not rf4)
 
     // count categories
     const fifteensAndThirtyones = countSubsetsWithSums(trick_ranks.map(rank => rank.count_value), [15, 31]);
