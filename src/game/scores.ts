@@ -1,7 +1,7 @@
 import { Card, Rank, Suit } from "./card";
 
 export class scoreCategory {
-    constructor(public name: string, public points: number) { }
+    constructor(public name: string, public points_4p: number, public points_6p: number = 0) { }
 }
 
 export const categories = {
@@ -15,8 +15,12 @@ export const categories = {
     double_prial: new scoreCategory('Morny', 12),
     run_3: new scoreCategory('3-run', 3),
     run_4: new scoreCategory('4-run', 9),
+    run_5: new scoreCategory('5-run', 9),
+    run_6: new scoreCategory('6-run', 9),
     run_flush_3: new scoreCategory('3-ruffle', 4),
     run_flush_4: new scoreCategory('4-ruffle', 10),
+    run_flush_5: new scoreCategory('5-ruffle', 10),
+    run_flush_6: new scoreCategory('6-ruffle', 10),
     final_trick: new scoreCategory('Last', 2),
 }
 
@@ -150,16 +154,13 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
 
     const runAndRuffleCounts = countRunsAndRuffles(trick, trick.length);
 
-    // just stupid way for now while i check
-    const run3s = runAndRuffleCounts["runs"].get(3) ?? 0;
-    const run4s = runAndRuffleCounts["runs"].get(4) ?? 0;
-    const ruffle3s = runAndRuffleCounts["ruffles"].get(3) ?? 0;
-    const ruffle4s = runAndRuffleCounts["ruffles"].get(4) ?? 0;
-
-    score_categories.push(...Array(run3s).fill(categories['run_3']));
-    score_categories.push(...Array(run4s).fill(categories['run_4']));
-    score_categories.push(...Array(ruffle3s).fill(categories['run_flush_3']));
-    score_categories.push(...Array(ruffle4s).fill(categories['run_flush_4']));
+    const runLengths: (3 | 4 | 5 | 6)[] = [3, 4, 5, 6];
+    for (const runRuffleLength of runLengths) {
+        const runs = runAndRuffleCounts["runs"].get(runRuffleLength) ?? 0;
+        const ruffles = runAndRuffleCounts["ruffles"].get(runRuffleLength) ?? 0;
+        score_categories.push(...Array(runs).fill(categories[`run_${runRuffleLength}`]));
+        score_categories.push(...Array(ruffles).fill(categories[`run_flush_${runRuffleLength}`]));
+    }
 
     // problems (but code changed since - worth testing):
     // 8C 6D 9D TC only scores as 15 (no run3)

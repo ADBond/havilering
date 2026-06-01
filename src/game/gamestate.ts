@@ -3,7 +3,6 @@ import { Player, PlayerName, playerNameArr } from "./player";
 import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
 import { GameLog } from "./log";
-import { Game } from "./game";
 
 export type GameConfig = {
     targetScore: number,
@@ -483,7 +482,7 @@ export class GameState {
             this.trickIndex,
         );
         const trickValue = categoriesAndScores.map(
-            (category) => category.points
+            (category) => category.points_4p
         ).reduce(
             (x, y) => x + y, 0
         );
