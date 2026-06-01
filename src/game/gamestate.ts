@@ -35,13 +35,11 @@ export class GameState {
     public suits: Suit[];
 
     constructor(public playerNames: AgentName[], public config: GameConfig, public seasonalSuitShort: string) {
-        // TODO: more / flexi ??
-        const playerConfig: PlayerName[] = ['player', 'comp1', 'comp2', 'comp3'];
         const agents: Agent[] = playerNames.map((name) => agentLookup(name));
         this.players = playerNames.map(
             (name, i) => new Player(
                 name,
-                playerConfig[i],
+                playerNameArr[i],
                 agents[i],
                 i,
             )
@@ -514,7 +512,15 @@ export class GameState {
 
     getStateForUI(): GameStateForUI {
         return ({
-            hands: { comp1: [], player: this.currentState === "hand_complete" ? [] : this.humanHand.slice(), comp2: [], comp3: [] },
+            playerNameArr: this.players.map(player => player.name),
+            hands: {
+                player: this.currentState === "hand_complete" ? [] : this.humanHand.slice(),
+                comp1: [],
+                comp2: [],
+                comp3: [],
+                comp4: [],
+                comp5: [],
+            },
             played: this.played,
             previous: this.previous,
 
@@ -542,6 +548,8 @@ export class GameState {
 }
 
 export interface GameStateForUI {
+    playerNameArr: PlayerName[],
+
     hands: Record<PlayerName, Card[]>;
     played: Record<PlayerName, Card | null | 'back'>;
     previous: Record<PlayerName, Card | null>;

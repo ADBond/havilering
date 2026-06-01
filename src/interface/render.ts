@@ -1,6 +1,6 @@
 import { createCardElement } from './ui';
 import { GameStateForUI, state } from '../game/gamestate';
-import { PlayerName, playerNameArr } from '../game/player';
+import { PlayerName } from '../game/player';
 import { onHumanPlay } from './api';
 
 
@@ -23,7 +23,7 @@ export async function renderState(state: GameStateForUI) {
     )
   });
 
-  playerNameArr.forEach(p => {
+  state.playerNameArr.forEach(p => {
     const playedEl = document.getElementById(`played-${p}`)!;
     playedEl.innerHTML = '';
     if (p === state.dealer) {
@@ -44,7 +44,7 @@ export async function renderState(state: GameStateForUI) {
     playedEl.appendChild(el);
   });
 
-  playerNameArr.forEach(p => {
+  state.playerNameArr.forEach(p => {
     const prevEl = document.getElementById(`prev-${p}`)!;
     prevEl.innerHTML = '';
     const card = state.previous[p as PlayerName];
