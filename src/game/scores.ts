@@ -23,6 +23,13 @@ export type categoryName = (
 // TODO: name & display-name should probably be distinct
 export class scoreCategory {
     constructor(public name: categoryName, public points_4p: number, public points_6p: number = 0) { }
+
+    public points(n_players: number): number {
+        if (n_players === 4) {
+            return this.points_4p;
+        }
+        return this.points_6p;
+    }
 }
 
 export const categories = {

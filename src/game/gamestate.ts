@@ -473,6 +473,7 @@ export class GameState {
 
     updateScores(winnerPlayerIndex: number): number {
 
+        const n_players = this.numPlayers;
         const categoriesAndScores: scoreCategory[] = trickScoreCategories(
             this.trickInProgressCards,
             this.seasonalSuit,
@@ -480,17 +481,21 @@ export class GameState {
             this.trickIndex,
         );
         const trickValue = categoriesAndScores.map(
-            (category) => category.points_4p
+            (category) => category.points(n_players)
         ).reduce(
             (x, y) => x + y, 0
         );
 
         // update the scores
-        this.players[winnerPlayerIndex].scores.push(trickValue);
-        this.players[(winnerPlayerIndex + 2) % this.numPlayers].scores.push(trickValue);
-        // other players explicitly score 0 !
-        this.players[(winnerPlayerIndex + 1) % this.numPlayers].scores.push(0);
-        this.players[(winnerPlayerIndex + 3) % this.numPlayers].scores.push(0);
+        for (let offset = 0; offset < n_players; offset++) {
+            const player = this.players[(winnerPlayerIndex + offset) % n_players];
+            if (offset % 2 === 0) {
+                player.scores.push(trickValue)
+            } else {
+                // other players explicitly score 0 !
+                player.scores.push(0)
+            }
+        }
 
         this.scoresAndCategories = categoriesAndScores;
         // console.log("Scores on the doors");
