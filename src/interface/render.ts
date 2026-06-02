@@ -5,7 +5,7 @@ import { onHumanPlay } from './api';
 
 
 export async function renderState(state: GameStateForUI) {
-  // console.log(state);
+  console.log(state);
   const n_players = state.playerNameArr.length;
   const handEl = document.getElementById('player-hand')!;
   const playerHand = state.hands.player;

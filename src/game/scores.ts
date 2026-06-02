@@ -122,7 +122,7 @@ export function countRunsAndRuffles(cards: Card[], maxLength: number): {
     return { runs, ruffles };
 }
 
-export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, trick_index: number): scoreCategory[] {
+export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_won: boolean, final_trick: boolean): scoreCategory[] {
     let score_categories: scoreCategory[] = [];
     const trick_ranks = trick.map(card => card.rank);
     const trick_suits = trick.map(card => card.suit);
@@ -171,8 +171,7 @@ export function trickScoreCategories(trick: Card[], seasonal_suit: Suit, dealer_
     }
 
     // final trick bonus
-    // TODO: get number from somewhere?
-    if (trick_index === 12) {
+    if (final_trick) {
         score_categories.push(categories['final_trick']);
     }
 

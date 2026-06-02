@@ -483,18 +483,29 @@ export class GameState {
     }
 
     processCachette(log: GameLog | null) {
-        // TODO actually process
+        const winnerPlayerIndex = this.currentPlayerIndex;
+        const trickValue = this.updateScores(winnerPlayerIndex, "cachette");
+
+        if (log !== null) {
+            // TODO
+            // log.captureTrick(
+            //     trickValue,
+            //     this.trickInProgress,
+            //     winnerPlayerIndex,
+            //     this.scoresAndCategories.map(score_cat => score_cat.name),
+            // );
+        }
         this.currentState = 'hand_complete';
     }
 
-    updateScores(winnerPlayerIndex: number): number {
-
+    updateScores(winnerPlayerIndex: number, from: string = "trick"): number {
+        const cardsFrom = from === "trick" ? this.trickInProgressCards : this.cachette;
         const n_players = this.numPlayers;
         const categoriesAndScores: scoreCategory[] = trickScoreCategories(
-            this.trickInProgressCards,
+            cardsFrom,
             this.seasonalSuit,
-            this.trickWinnerPlayer().positionIndex === this.dealerIndex,
-            this.trickIndex,
+            winnerPlayerIndex === this.dealerIndex,
+            this.trickIndex == this.cardsPerHand - 1,
         );
         const trickValue = categoriesAndScores.map(
             (category) => category.points(n_players)
@@ -544,6 +555,7 @@ export class GameState {
             },
             played: this.played,
             previous: this.previous,
+            cachette: ["hand_complete", "process_cachette"].includes(this.currentState) ? this.cachette : null,
 
             scores: Object.fromEntries(
                 this.players.map(
@@ -574,6 +586,7 @@ export interface GameStateForUI {
     hands: Record<PlayerName, Card[]>;
     played: Record<PlayerName, Card | null | 'back'>;
     previous: Record<PlayerName, Card | null>;
+    cachette: Card[] | null;
 
     scores: Record<PlayerName, number>,
     prevScores: Record<PlayerName, number>,
