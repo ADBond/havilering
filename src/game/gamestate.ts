@@ -12,7 +12,15 @@ function copyConfig(config: GameConfig): GameConfig {
     return {targetScore: config.targetScore};
 }
 
-export type state = 'game_initialise' | 'play_card' | 'trick_complete' | 'hand_complete' | 'new_hand' | 'game_complete';
+export type state = (
+    'game_initialise' |
+    'play_card' |
+    'trick_complete' |
+    'process_cachette' |
+    'hand_complete' |
+    'new_hand' |
+    'game_complete'
+);
 
 export class GameState {
     public dealerIndex: number;
@@ -100,6 +108,9 @@ export class GameState {
                 break;
             case 'trick_complete':
                 this.resetTrick(log);
+                break;
+            case 'process_cachette':
+                this.processCachette(log);
                 break;
             case 'hand_complete':
                 this.dealerIndex = this.getNextPlayerIndex(this.dealerIndex);
@@ -467,8 +478,13 @@ export class GameState {
         if (this.handNotFinished) {
             this.currentState = "play_card";
         } else {
-            this.currentState = "hand_complete";
+            this.currentState = "process_cachette";
         }
+    }
+
+    processCachette(log: GameLog | null) {
+        // TODO actually process
+        this.currentState = 'hand_complete';
     }
 
     updateScores(winnerPlayerIndex: number): number {

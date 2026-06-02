@@ -97,9 +97,11 @@ export async function renderState(state: GameStateForUI) {
   }
   breakdownEl.textContent = `prev: ${totalScorePrev}: ${scoreCategoriesText.join(' + ')}`;
 
+  const myPartnershipDisplay = n_players === 4 ? 'Player & N' : 'Player & NW & NE';
+  const theirPartnershipDisplay = n_players === 4 ? 'E & W' : 'N & SW & SE';
   const nameLookup = {
-    comp2: 'Player & N',
-    comp1: 'E & W',
+    comp2: myPartnershipDisplay,
+    comp1: theirPartnershipDisplay,
   } as const;
 
   type Partnership = keyof typeof nameLookup;
@@ -142,6 +144,7 @@ const delayMap: Record<state, number> = {
   game_initialise: 10,
   play_card: 700,
   trick_complete: 1700,
+  process_cachette: 2000,
   hand_complete: 3000,
   new_hand: 10,
   game_complete: 10,

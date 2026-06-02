@@ -142,7 +142,7 @@ export async function ismcts(
             while (!["play_card", "hand_complete", "game_complete"].includes(state.currentState)) {
                 let initialState = state.currentState;
                 await state.increment();
-                if (initialState === "trick_complete") {
+                if (["trick_complete", "process_cachette"].includes(initialState)) {
                     let trick = state.prevTrickScores;
                     for (let j = 0; j < trick.length; j++) {
                         treeRewards[j] += trick[j];
