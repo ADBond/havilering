@@ -25,6 +25,7 @@ export async function renderState(state: GameStateForUI) {
   });
 
   const gameBoard = document.getElementById("game-board")!;
+  gameBoard.innerHTML = '';
 
   state.playerNameArr.forEach(p => {
     const areaEl = document.createElement("div");
