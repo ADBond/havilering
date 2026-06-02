@@ -216,6 +216,26 @@ body {
     margin: 2px;
 }
 
+#cachette {
+    position: absolute;
+    right: 20px;
+    top: 300px;
+    width: 200px;
+    text-align: center;
+}
+
+#cachette .card {
+    margin-left: -50px;
+}
+
+#cachette .card:first-child {
+    margin-left: 0;
+}
+
+.cachette-card {
+    transform: scale(0.75);
+}
+
 .player-name {
     font-weight: bold;
     color: #aaf;

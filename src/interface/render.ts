@@ -81,6 +81,16 @@ export async function renderState(state: GameStateForUI) {
     trumpsEl.appendChild(el);
   });
 
+  const cachetteEl = document.getElementById('cachette')!;
+  cachetteEl.innerHTML = '';
+  if (state.cachette !== null) {
+    state.cachette.forEach(c => {
+      const cardEl = createCardElement(c.toStringShort());
+      cardEl.classList.add("cachette-card");
+      cachetteEl.appendChild(cardEl);
+    })
+  }
+
   const scoresTableEl = document.getElementById('scores-table') as HTMLTableElement;
   const breakdownEl = document.getElementById('scores-breakdown') as HTMLSpanElement;
 
@@ -144,7 +154,7 @@ const delayMap: Record<state, number> = {
   game_initialise: 10,
   play_card: 700,
   trick_complete: 1700,
-  process_cachette: 2000,
+  process_cachette: 3000,
   hand_complete: 3000,
   new_hand: 10,
   game_complete: 10,
