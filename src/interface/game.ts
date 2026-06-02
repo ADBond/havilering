@@ -3,7 +3,7 @@ import { defaultConfig } from "../game/game";
 import { getSeasonalSuitShort } from "../utils/season";
 
 let game: Game;
-const opp = 'random';
+const opp = 'ismcts1000';
 
 export function newGame(): void {
     const dateNow = new Date();
