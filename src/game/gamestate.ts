@@ -495,6 +495,10 @@ export class GameState {
             //     this.scoresAndCategories.map(score_cat => score_cat.name),
             // );
         }
+        if (this.gameIsFinished) {
+            this.currentState = "game_complete";
+            return;
+        }
         this.currentState = 'hand_complete';
     }
 

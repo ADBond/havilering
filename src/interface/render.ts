@@ -94,7 +94,9 @@ export async function renderState(state: GameStateForUI) {
   const scoresTableEl = document.getElementById('scores-table') as HTMLTableElement;
   const breakdownEl = document.getElementById('scores-breakdown') as HTMLSpanElement;
 
-  const scoreCategoriesText = state.scoresAndCategories.map(
+  const scoreCategoriesText = state.scoresAndCategories.filter(
+    category => category.points(n_players) !== 0
+  ).map(
     category => `${category.points(n_players)} (${category.name})`
   );
   let totalScorePrev: number;
