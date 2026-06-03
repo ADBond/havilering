@@ -55,6 +55,7 @@ export async function renderState(state: GameStateForUI) {
   });
 
   const prevElContainer = document.getElementById("prev-area")!;
+  prevElContainer.innerHTML = '';
   state.playerNameArr.forEach(p => {
     const prevEl = document.createElement("div");
     prevEl.id = `prev-${p}-${n_players}`;
