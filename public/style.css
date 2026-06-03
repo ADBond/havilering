@@ -238,7 +238,7 @@ body {
 .prev-area {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 220px;
 }
 
 .prev-slot {
@@ -248,7 +248,7 @@ body {
 }
 
 #prev-comp1-4 {
-    top: 50px;
+    top: 60px;
     left: 0;
 }
 
@@ -260,7 +260,7 @@ body {
 }
 
 #prev-comp3-4 {
-    top: 50px;
+    top: 60px;
     right: 0;
 }
 

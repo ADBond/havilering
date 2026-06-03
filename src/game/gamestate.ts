@@ -559,6 +559,7 @@ export class GameState {
             played: this.played,
             previous: this.previous,
             cachette: ["hand_complete", "process_cachette"].includes(this.currentState) ? this.cachette : null,
+            // cachette: this.cachette,
 
             scores: Object.fromEntries(
                 this.players.map(
