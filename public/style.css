@@ -5,6 +5,97 @@ body {
     color: white;
 }
 
+#new-game-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+
+    padding: 6px 10px;
+    font-size: 14px;
+    background-color: #ffd000;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.2s ease;
+}
+
+#new-game-button:hover {
+    background-color: #cc0000;
+    color: #fff;
+}
+
+#new-game-menu {
+    position: fixed;
+    top: 50px;
+    left: 10px;
+    background: #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    width: 220px;
+    font-size: 14px;
+    padding: 10px;
+    color: #fff;
+}
+
+#new-game-menu fieldset {
+    border: none;
+    margin: 0 0 12px 0;
+    padding: 0;
+}
+
+#new-game-menu legend {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #bbb;
+}
+
+#new-game-menu label {
+    display: block;
+    background: #444;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#new-game-menu input[type="radio"] {
+    display: none;
+}
+
+#new-game-menu label:hover {
+    background: #555;
+}
+
+#new-game-menu input[type="radio"]:checked+label {
+    background: #ffd000;
+    color: black;
+    font-weight: bold;
+}
+
+#play-now {
+    width: 100%;
+    padding: 10px;
+    background: #ffd000;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#play-now:hover {
+    background-color: #cc0000;
+    color: #fff;
+}
+
 .game-board {
     position: relative;
     width: 900px;
@@ -21,28 +112,60 @@ body {
     border: black 1px;
 }
 
-.player-area.player {
+.player-area.player-4 {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.player-area.comp1 {
+.player-area.comp1-4 {
     top: 160px;
     left: 30px;
 }
 
-.player-area.comp2 {
+.player-area.comp2-4 {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.player-area.comp3 {
+.player-area.comp3-4 {
     top: 160px;
     right: 30px;
 }
 
+
+.player-area.player-6 {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-area.comp1-6 {
+    top: 230px;
+    left: 30px;
+}
+
+.player-area.comp2-6 {
+    top: 70px;
+    left: 30px;
+}
+
+.player-area.comp3-6 {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-area.comp4-6 {
+    top: 70px;
+    right: 30px;
+}
+
+.player-area.comp5-6 {
+    top: 230px;
+    right: 30px;
+}
 
 .played,
 .previous {
@@ -115,7 +238,7 @@ body {
 .prev-area {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 220px;
 }
 
 .prev-slot {
@@ -124,24 +247,57 @@ body {
     transform-origin: center center;
 }
 
-#prev-comp1 {
-    top: 50px;
+#prev-comp1-4 {
+    top: 60px;
     left: 0;
 }
 
-#prev-comp2 {
+#prev-comp2-4 {
     top: 0;
     right: 0;
     left: 50%;
     transform: translateX(-50%) scale(0.75);
 }
 
-#prev-comp3 {
-    top: 50px;
+#prev-comp3-4 {
+    top: 60px;
     right: 0;
 }
 
-#prev-player {
+#prev-player-4 {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0.75);
+}
+
+#prev-comp1-6 {
+    top: 100px;
+    left: 0;
+}
+
+#prev-comp2-6 {
+    top: 20px;
+    left: 0;
+}
+
+#prev-comp3-6 {
+    top: 0;
+    right: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0.75);
+}
+
+#prev-comp4-6 {
+    top: 20px;
+    right: 0;
+}
+
+#prev-comp5-6 {
+    top: 100px;
+    right: 0;
+}
+
+#prev-player-6 {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%) scale(0.75);
@@ -149,6 +305,26 @@ body {
 
 .prev-slot .card {
     margin: 2px;
+}
+
+#cachette {
+    position: absolute;
+    right: 20px;
+    top: 300px;
+    width: 200px;
+    text-align: center;
+}
+
+#cachette .card {
+    margin-left: -50px;
+}
+
+#cachette .card:first-child {
+    margin-left: 0;
+}
+
+.cachette-card {
+    transform: scale(0.75);
 }
 
 .player-name {

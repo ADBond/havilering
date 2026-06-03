@@ -3,17 +3,28 @@ import { Player, PlayerName, playerNameArr } from "./player";
 import { scoreCategory, trickScoreCategories } from "./scores";
 import { Agent, AgentName, agentLookup } from "./agent/agent";
 import { GameLog } from "./log";
-import { Game } from "./game";
 
 export type GameConfig = {
     targetScore: number,
+    numPlayers: number,
 }
 
 function copyConfig(config: GameConfig): GameConfig {
-    return {targetScore: config.targetScore};
+    return {
+        targetScore: config.targetScore,
+        numPlayers: config.numPlayers,
+    };
 }
 
-export type state = 'game_initialise' | 'play_card' | 'trick_complete' | 'hand_complete' | 'new_hand' | 'game_complete';
+export type state = (
+    'game_initialise' |
+    'play_card' |
+    'trick_complete' |
+    'process_cachette' |
+    'hand_complete' |
+    'new_hand' |
+    'game_complete'
+);
 
 export class GameState {
     public dealerIndex: number;
@@ -24,7 +35,8 @@ export class GameState {
     public players: Player[] = [];
     public trickIndex: number;
     public trickInProgress: [Card, Player][] = [];
-    public playedCards: Card[] = []
+    public playedCards: Card[] = [];
+    public cachette: Card[] = [];
 
     public handNumber: number = 0;
     public currentState: state = 'game_initialise';
@@ -35,13 +47,11 @@ export class GameState {
     public suits: Suit[];
 
     constructor(public playerNames: AgentName[], public config: GameConfig, public seasonalSuitShort: string) {
-        // TODO: more / flexi ??
-        const playerConfig: PlayerName[] = ['player', 'comp1', 'comp2', 'comp3'];
         const agents: Agent[] = playerNames.map((name) => agentLookup(name));
         this.players = playerNames.map(
             (name, i) => new Player(
                 name,
-                playerConfig[i],
+                playerNameArr[i],
                 agents[i],
                 i,
             )
@@ -103,6 +113,9 @@ export class GameState {
             case 'trick_complete':
                 this.resetTrick(log);
                 break;
+            case 'process_cachette':
+                this.processCachette(log);
+                break;
             case 'hand_complete':
                 this.dealerIndex = this.getNextPlayerIndex(this.dealerIndex);
 
@@ -123,7 +136,11 @@ export class GameState {
     }
 
     get cardsPerHand(): number {
-        return 13;
+        if (this.numPlayers === 4) {
+            return 13;
+        }
+        // 6p
+        return 8;
     }
 
     get trickNumber(): number {
@@ -405,7 +422,7 @@ export class GameState {
     dealCards(log: GameLog | null): void {
         const pack = getFullPack(this.seasonalSuitShort);
         shuffle(pack);
-        for (let i = 0; i < 13; i++) {
+        for (let i = 0; i < this.cardsPerHand; i++) {
             // for (const player of this.state.players) {
             // TODO: loop this properly!
             for (let playerIndex = 0; playerIndex < this.numPlayers; playerIndex++) {
@@ -414,7 +431,8 @@ export class GameState {
             }
         }
 
-        // TODO now pack should be empty
+        // TODO now pack should be empty at 4p
+        this.cachette = [...pack];
         // console.log("Empty pack:");
         // console.log([...pack]);
         // console.log([...this.getPlayerHand(0)]);
@@ -432,6 +450,7 @@ export class GameState {
             log.dealerIndex = this.dealerIndex;
             log.handNumber = this.handNumber;
             log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
+            log.cachette = [...this.cachette];
             log.startingScores = this.players.map((player) => player.score);
         }
     }
@@ -464,30 +483,49 @@ export class GameState {
         if (this.handNotFinished) {
             this.currentState = "play_card";
         } else {
-            this.currentState = "hand_complete";
+            this.currentState = "process_cachette";
         }
     }
 
-    updateScores(winnerPlayerIndex: number): number {
+    processCachette(log: GameLog | null) {
+        const winnerPlayerIndex = this.currentPlayerIndex;
+        const trickValue = this.updateScores(winnerPlayerIndex, "cachette");
 
+        if (log !== null) {
+            log.cachetteValue = trickValue;
+        }
+        if (this.gameIsFinished) {
+            this.currentState = "game_complete";
+            return;
+        }
+        this.currentState = 'hand_complete';
+    }
+
+    updateScores(winnerPlayerIndex: number, from: string = "trick"): number {
+        const cardsFrom = from === "trick" ? this.trickInProgressCards : this.cachette;
+        const n_players = this.numPlayers;
         const categoriesAndScores: scoreCategory[] = trickScoreCategories(
-            this.trickInProgressCards,
+            cardsFrom,
             this.seasonalSuit,
-            this.trickWinnerPlayer().positionIndex === this.dealerIndex,
-            this.trickIndex,
+            winnerPlayerIndex === this.dealerIndex,
+            this.trickIndex == this.cardsPerHand - 1,
         );
         const trickValue = categoriesAndScores.map(
-            (category) => category.points
+            (category) => category.points(n_players)
         ).reduce(
             (x, y) => x + y, 0
         );
 
         // update the scores
-        this.players[winnerPlayerIndex].scores.push(trickValue);
-        this.players[(winnerPlayerIndex + 2) % this.numPlayers].scores.push(trickValue);
-        // other players explicitly score 0 !
-        this.players[(winnerPlayerIndex + 1) % this.numPlayers].scores.push(0);
-        this.players[(winnerPlayerIndex + 3) % this.numPlayers].scores.push(0);
+        for (let offset = 0; offset < n_players; offset++) {
+            const player = this.players[(winnerPlayerIndex + offset) % n_players];
+            if (offset % 2 === 0) {
+                player.scores.push(trickValue)
+            } else {
+                // other players explicitly score 0 !
+                player.scores.push(0)
+            }
+        }
 
         this.scoresAndCategories = categoriesAndScores;
         // console.log("Scores on the doors");
@@ -509,9 +547,19 @@ export class GameState {
 
     getStateForUI(): GameStateForUI {
         return ({
-            hands: { comp1: [], player: this.currentState === "hand_complete" ? [] : this.humanHand.slice(), comp2: [], comp3: [] },
+            playerNameArr: this.players.map(player => player.name),
+            hands: {
+                player: this.currentState === "hand_complete" ? [] : this.humanHand.slice(),
+                comp1: [],
+                comp2: [],
+                comp3: [],
+                comp4: [],
+                comp5: [],
+            },
             played: this.played,
             previous: this.previous,
+            cachette: ["hand_complete", "process_cachette"].includes(this.currentState) ? this.cachette : null,
+            // cachette: this.cachette,
 
             scores: Object.fromEntries(
                 this.players.map(
@@ -537,9 +585,12 @@ export class GameState {
 }
 
 export interface GameStateForUI {
+    playerNameArr: PlayerName[],
+
     hands: Record<PlayerName, Card[]>;
     played: Record<PlayerName, Card | null | 'back'>;
     previous: Record<PlayerName, Card | null>;
+    cachette: Card[] | null;
 
     scores: Record<PlayerName, number>,
     prevScores: Record<PlayerName, number>,

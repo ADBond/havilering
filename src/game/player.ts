@@ -1,8 +1,7 @@
 import { Card } from "./card";
 import { Agent } from "./agent/agent";
-// import { ScoreBreakdown } from "./scores";
 
-export const playerNameArr = ['player', 'comp1', 'comp2', 'comp3'] as const;
+export const playerNameArr = ['player', 'comp1', 'comp2', 'comp3', 'comp4', 'comp5'] as const;
 export type PlayerName = typeof playerNameArr[number];
 
 

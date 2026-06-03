@@ -4,6 +4,7 @@ import { AgentName } from "./agent/agent";
 
 export const defaultConfig: GameConfig = {
   targetScore: 121,
+  numPlayers: 4,
 }
 
 function randomID(): string {

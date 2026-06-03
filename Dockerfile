@@ -7,9 +7,10 @@ COPY package.json package-lock.json ./
 
 RUN npm ci --ignore-scripts
 
-COPY public/ ./public/
-COPY src/ ./src/
 COPY index.html ./index.html
+COPY public/ ./public/
+COPY tests/ ./tests/
+COPY src/ ./src/
 
 RUN npm run prepare:wasm
 

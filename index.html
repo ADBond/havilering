@@ -12,6 +12,35 @@
 </head>
 
 <body>
+    <div id="new-game-button">New game</div>
+    <div id="new-game-menu" hidden>
+        <form id="new-game-form">
+            <fieldset>
+                <legend>Target Score</legend>
+                <input type="radio" name="targetscore" value="61" id="targetscore-61">
+                <label for="targetscore-61">61</label>
+                <input type="radio" name="targetscore" value="121" id="targetscore-121">
+                <label for="targetscore-121">121</label>
+                <input type="radio" name="targetscore" value="181" id="targetscore-181">
+                <label for="targetscore-181">181</label>
+                <input type="radio" name="targetscore" value="241" id="targetscore-241">
+                <label for="targetscore-241">241</label>
+                <input type="radio" name="targetscore" value="301" id="targetscore-301">
+                <label for="targetscore-301">301</label>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Number of Players</legend>
+                <input type="radio" name="numplayers" value="4" id="numplayers-4">
+                <label for="numplayers-4">4</label>
+                <input type="radio" name="numplayers" value="6" id="numplayers-6">
+                <label for="numplayers-6">6</label>
+            </fieldset>
+
+            <button type="submit" id="play-now">Play Now</button>
+        </form>
+    </div>
 
     <div class="trumps" id="trump-holder"></div>
 
@@ -24,33 +53,14 @@
         </div>
     </div>
 
-    <div class="game-board">
-
-        <div class="player-area comp1">
-            <div class="played" id="played-comp1"></div>
-        </div>
-
-        <div class="player-area comp2">
-            <div class="played" id="played-comp2"></div>
-        </div>
-
-        <div class="player-area comp3">
-            <div class="played" id="played-comp3"></div>
-        </div>
-
-        <div class="player-area player">
-            <div class="played" id="played-player"></div>
-        </div>
+    <div id="game-board" class="game-board">
     </div>
 
-    <div class="previous-trick">
-        <div class="prev-area">
-            <div id="prev-comp1" class="prev-slot"></div>
-            <div id="prev-comp2" class="prev-slot"></div>
-            <div id="prev-comp3" class="prev-slot"></div>
-            <div id="prev-player" class="prev-slot"></div>
+    <div id="previous-trick" class="previous-trick">
+        <div id="prev-area" class="prev-area">
         </div>
     </div>
+    <div id="cachette"></div>
 
     <div class="hand">
         <div id="player-hand"></div>

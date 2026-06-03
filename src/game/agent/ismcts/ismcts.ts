@@ -108,13 +108,14 @@ export async function ismcts(
     const initialPlayerIndex = rootState.currentPlayerIndex;
     const initialScores = zeroSum(rootState.scores);
     const rootNode = new ISMCTSNode(initialPlayerIndex);
+    const nPlayers = rootState.numPlayers;
     let maxDepth = 0;
     let depth;
     for (let i = 0; i < iterations; i++) {
         // console.log(`ISMCTS iteration ${i}`);
         let state = determinise(rootState, rolloutAgent);
         let node = rootNode;
-        let treeRewards = [0.0, 0.0, 0.0, 0.0];
+        let treeRewards = Array(nPlayers).fill(0.0);
         // walk down tree until we get a node to expand
         while (!["hand_complete", "game_complete"].includes(state.currentState)) {
             let legalMoves = state.legalMoveIndices;
@@ -141,7 +142,7 @@ export async function ismcts(
             while (!["play_card", "hand_complete", "game_complete"].includes(state.currentState)) {
                 let initialState = state.currentState;
                 await state.increment();
-                if (initialState === "trick_complete") {
+                if (["trick_complete", "process_cachette"].includes(initialState)) {
                     let trick = state.prevTrickScores;
                     for (let j = 0; j < trick.length; j++) {
                         treeRewards[j] += trick[j];
@@ -152,7 +153,7 @@ export async function ismcts(
                 break;
             }
         }
-        let rolloutRewards = [0.0, 0.0, 0.0, 0.0];
+        let rolloutRewards = Array(nPlayers).fill(0.0);
 
         while (!["hand_complete", "game_complete"].includes(state.currentState)) {  // false positive
             // console.log(`Rollout for ${i}... (${state.currentState}, hand is ${state.handNumber})`);
@@ -168,7 +169,7 @@ export async function ismcts(
         const treeZeroSum = zeroSum(treeRewards);
         const rolloutZeroSum = zeroSum(rolloutRewards);
 
-        let result = [0.0, 0.0, 0.0, 0.0];
+        let result = Array(nPlayers).fill(0.0);
         for (let j = 0; j < result.length; j++) {
             result[j] = treeZeroSum[j] + rolloutDiscount * rolloutZeroSum[j] - initialScores[j];
         }
