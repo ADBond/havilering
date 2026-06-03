@@ -8,6 +8,8 @@ declare const __COMMIT_HASH__: string;
 
 export class GameLog {
     private hands: Card[][] = [];
+    public cachette: Card[] = [];
+    public cachetteValue: number = -1;
 
     private playerCount: number;
 

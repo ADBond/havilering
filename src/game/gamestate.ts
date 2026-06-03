@@ -450,6 +450,7 @@ export class GameState {
             log.dealerIndex = this.dealerIndex;
             log.handNumber = this.handNumber;
             log.captureHands(this.players.map((player) => [...this.getPlayerHand(player.positionIndex)]));
+            log.cachette = [...this.cachette];
             log.startingScores = this.players.map((player) => player.score);
         }
     }
@@ -491,13 +492,7 @@ export class GameState {
         const trickValue = this.updateScores(winnerPlayerIndex, "cachette");
 
         if (log !== null) {
-            // TODO
-            // log.captureTrick(
-            //     trickValue,
-            //     this.trickInProgress,
-            //     winnerPlayerIndex,
-            //     this.scoresAndCategories.map(score_cat => score_cat.name),
-            // );
+            log.cachetteValue = trickValue;
         }
         if (this.gameIsFinished) {
             this.currentState = "game_complete";
