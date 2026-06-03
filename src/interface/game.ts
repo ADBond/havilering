@@ -1,17 +1,18 @@
 import { Game } from "../game/game";
-import { defaultConfig } from "../game/game";
+import { GameConfig } from "../game/gamestate";
 import { getSeasonalSuitShort } from "../utils/season";
 
 let game: Game;
 const opp = 'ismcts1000';
 
-export function newGame(): void {
+export function newGame(config: GameConfig): void {
     const dateNow = new Date();
     // dateNow.setDate(dateNow.getDate() - 1);
     const seasonalSuitShort = getSeasonalSuitShort(dateNow);
+    const players = ['human', ...Array(config.numPlayers - 1).fill(opp)];
     game = new Game(
-        ['human', opp, opp, opp, opp, opp],
-        defaultConfig,
+        players,
+        config,
         seasonalSuitShort,
     );
 }

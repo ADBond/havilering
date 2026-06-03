@@ -6,10 +6,14 @@ import { GameLog } from "./log";
 
 export type GameConfig = {
     targetScore: number,
+    numPlayers: number,
 }
 
 function copyConfig(config: GameConfig): GameConfig {
-    return {targetScore: config.targetScore};
+    return {
+        targetScore: config.targetScore,
+        numPlayers: config.numPlayers,
+    };
 }
 
 export type state = (
